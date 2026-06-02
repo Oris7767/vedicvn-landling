@@ -14,13 +14,13 @@ export function Hero() {
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
           </svg>
-          Dịch vụ tâm linh chuyên nghiệp
+          Dịch vụ tư vấn chuyên nghiệp
         </div>
 
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-stone-800 mb-6 leading-tight">
-          Khám phá <span className="text-gradient">ân ban mai</span>
+          Khám phá <span className="text-gradient">hệ sinh thái cổ xưa</span>
           <br />
-          Dẫn lối con đường tâm linh
+          Dẫn lối con đường tâm linh, tự do và sự bình an
         </h1>
 
         <p className="text-lg md:text-xl text-stone-600 max-w-2xl mx-auto mb-10 leading-relaxed">

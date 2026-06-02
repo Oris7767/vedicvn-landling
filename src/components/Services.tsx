@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import type { Service } from '../types';
-import { hasFixedPrice, getServiceAmount } from '../lib/servicePrices';
 import { createPayment, checkPaymentStatus } from '../lib/payment';
 import { saveBooking } from '../lib/supabase';
+
+// Services that don't require upfront payment
+const NO_PAYMENT_SERVICES = ['phap-su'];
 
 const services: Service[] = [
   {
@@ -133,7 +135,7 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const needsBirthInfo = ['chiem-tinh-co-ban', 'chiem-tinh-chuyen-sau'].includes(service.id);
-  const needPayment = hasFixedPrice(service.id);
+  const needPayment = !NO_PAYMENT_SERVICES.includes(service.id);
 
   // Poll payment status
   useEffect(() => {
@@ -167,8 +169,8 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
       setPaymentError(null);
 
       try {
-        const amount = getServiceAmount(service.id);
-        if (amount && amount > 0) {
+        const amount = Number(service.price?.replace(/,/g, '') || 0);
+        if (amount > 0) {
           const result = await createPayment({
             serviceId: service.id,
             serviceName: service.title,
@@ -187,7 +189,7 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
     };
 
     initPayment();
-  }, [needPayment, service.id, service.title]);
+  }, [needPayment, service.id, service.title, service.price]);
 
   const handleOpenQR = () => {
     if (paymentData?.qrUrl) {

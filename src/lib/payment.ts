@@ -1,5 +1,16 @@
 const API_URL = import.meta.env.VITE_PAYMENT_API_URL || '';
 
+const SERVICE_ID_MAP: Record<string, string> = {
+  'chiem-tinh-co-ban': '1',
+  'chiem-tinh-chuyen-sau': '2',
+  'chiem-tinh-prasna': '3',
+  'tarot-1-cau': '4',
+  'tarot-combo': '5',
+  'tarot-offline': '6',
+  'kinh-dich': '7',
+  'phap-su': '8',
+};
+
 export interface PaymentResponse {
   paymentCode: string;
   amount: number;
@@ -28,12 +39,14 @@ export async function createPayment(data: {
   birthPlace?: string;
   message?: string;
 }): Promise<PaymentResponse> {
-  const response = await fetch(`${API_URL}/create-order`, {
+  const packageId = SERVICE_ID_MAP[data.serviceId] || data.serviceId;
+  
+  const response = await fetch(`${API_URL}/payment/create-order`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chartHash: `${data.serviceId}_${Date.now()}`,
-      packageId: data.serviceId,
+      packageId,
       description: `Thanh toan ${data.serviceName} - ${data.customerName}`,
     }),
   });
@@ -46,7 +59,7 @@ export async function createPayment(data: {
 }
 
 export async function checkPaymentStatus(orderId: string): Promise<PaymentStatus> {
-  const response = await fetch(`${API_URL}/check-status`, {
+  const response = await fetch(`${API_URL}/payment/check-status`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ orderId }),

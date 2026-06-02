@@ -40,6 +40,15 @@ export async function createPayment(data: {
   message?: string;
 }): Promise<PaymentResponse> {
   const packageId = SERVICE_ID_MAP[data.serviceId] || data.serviceId;
+  console.log('[DEBUG] createPayment API call:', {
+    url: `${API_URL}/payment/create-order`,
+    body: {
+      chartHash: `${data.serviceId}_${Date.now()}`,
+      packageId,
+      amount: data.amount,
+      description: `Thanh toan ${data.serviceName} - ${data.customerName}`,
+    }
+  });
   
   const response = await fetch(`${API_URL}/payment/create-order`, {
     method: 'POST',
@@ -47,15 +56,19 @@ export async function createPayment(data: {
     body: JSON.stringify({
       chartHash: `${data.serviceId}_${Date.now()}`,
       packageId,
+      amount: data.amount,
       description: `Thanh toan ${data.serviceName} - ${data.customerName}`,
     }),
   });
+
+  const result = await response.json();
+  console.log('[DEBUG] createPayment API response:', result);
 
   if (!response.ok) {
     throw new Error('Failed to create payment');
   }
 
-  return response.json();
+  return result;
 }
 
 export async function checkPaymentStatus(orderId: string): Promise<PaymentStatus> {

@@ -169,7 +169,14 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
       setPaymentError(null);
 
       try {
-        const amount = Number(service.price?.replace(/,/g, '') || 0);
+        const rawPrice = service.price?.replace(/,/g, '') || '0';
+        const amount = Number(rawPrice);
+        console.log('[DEBUG] ServiceModal initPayment:', {
+          serviceId: service.id,
+          serviceTitle: service.title,
+          rawPrice: service.price,
+          parsedAmount: amount
+        });
         if (amount > 0) {
           const result = await createPayment({
             serviceId: service.id,
@@ -179,9 +186,13 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
             customerEmail: '',
             customerPhone: '',
           });
+          console.log('[DEBUG] createPayment result:', result);
           setPaymentData(result);
+        } else {
+          console.warn('[DEBUG] Amount is 0 or invalid, skipping payment');
         }
-      } catch {
+      } catch (err) {
+        console.error('[DEBUG] Payment error:', err);
         setPaymentError('Không thể tạo thanh toán. Vui lòng thử lại.');
       } finally {
         setIsCreatingPayment(false);

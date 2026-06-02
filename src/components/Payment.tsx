@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react';
+import type { SepayCreateOrderBody } from '../types';
 
 const PRICING_PLANS = [
   {
-    id: 'basic',
+    id: '1',
     name: 'Cơ bản',
     price: '500,000',
     description: 'Phù hợp cho nhu cầu tư vấn đơn giản',
@@ -15,7 +16,7 @@ const PRICING_PLANS = [
     popular: false,
   },
   {
-    id: 'standard',
+    id: '2',
     name: 'Tiêu chuẩn',
     price: '1,200,000',
     description: 'Dịch vụ tư vấn toàn diện',
@@ -29,7 +30,7 @@ const PRICING_PLANS = [
     popular: true,
   },
   {
-    id: 'premium',
+    id: '3',
     name: 'Cao cấp',
     price: '2,500,000',
     description: 'Giải pháp tâm linh toàn diện',
@@ -45,40 +46,69 @@ const PRICING_PLANS = [
   },
 ];
 
+function generateChartHash(phone: string): string {
+  const timestamp = Date.now();
+  const input = `${phone}-${timestamp}`;
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return `votive_${Math.abs(hash).toString(36)}_${timestamp.toString(36)}`;
+}
+
 export function Payment() {
   const [paymentMethod, setPaymentMethod] = useState<'vietqr' | 'banking'>('vietqr');
-  const [selectedPlan, setSelectedPlan] = useState<string>('standard');
+  const [selectedPlan, setSelectedPlan] = useState<string>('2');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentCode, setPaymentCode] = useState<string | null>(null);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [phone, setPhone] = useState('');
 
   const selectedPlanData = PRICING_PLANS.find((p) => p.id === selectedPlan);
 
   const handlePayment = async (e: FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+    setPaymentCode(null);
+    setQrUrl(null);
 
-    const paymentApiUrl = import.meta.env.VITE_PAYMENT_API_URL || '/api/payment';
+    const paymentApiUrl = (import.meta.env.VITE_PAYMENT_API_URL || '/api') + '/create-order';
+
+    const body: SepayCreateOrderBody = {
+      chartHash: generateChartHash(phone),
+      packageId: selectedPlan as SepayCreateOrderBody['packageId'],
+      description: `VOTIVE ${phone} - Go ${selectedPlan}`,
+    };
 
     try {
       const response = await fetch(paymentApiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planId: selectedPlan,
-          amount: selectedPlanData?.price,
-          method: paymentMethod,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
-        alert('Đang chuyển hướng đến trang thanh toán...');
+        const data = await response.json();
+        setPaymentCode(data.code || data.paymentCode || data.qrUrl || null);
+        if (data.qrUrl) setQrUrl(data.qrUrl);
       } else {
-        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+        const err = await response.json().catch(() => ({}));
+        alert(`Có lỗi xảy ra: ${err.message || 'Vui lòng thử lại.'}`);
       }
     } catch {
       alert('Không thể kết nối. Vui lòng thử lại sau.');
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const resetForm = () => {
+    setPaymentCode(null);
+    setQrUrl(null);
+    setPhone('');
+    setSelectedPlan('2');
   };
 
   return (
@@ -90,7 +120,7 @@ export function Payment() {
             Chọn gói dịch vụ phù hợp
           </h2>
           <p className="text-stone-600 max-w-2xl mx-auto">
-            Thanh toán dễ dàng qua chuyển khoản ngân hàng hoặc mã QR VietQR. 
+            Thanh toán dễ dàng qua chuyển khoản ngân hàng hoặc mã QR VietQR.
             Hoàn tiền 100% nếu không hài lòng.
           </p>
         </div>
@@ -148,87 +178,117 @@ export function Payment() {
 
         <div className="max-w-xl mx-auto bg-white rounded-2xl p-8 shadow-lg">
           <h3 className="text-xl font-semibold text-stone-800 mb-6 text-center">
-            Thông tin thanh toán
+            {paymentCode ? 'Mã thanh toán' : 'Thông tin thanh toán'}
           </h3>
 
-          <div className="flex gap-4 mb-6">
-            <button
-              onClick={() => setPaymentMethod('vietqr')}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
-                paymentMethod === 'vietqr'
-                  ? 'bg-gold-600 text-white'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-            >
-              VietQR
-            </button>
-            <button
-              onClick={() => setPaymentMethod('banking')}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
-                paymentMethod === 'banking'
-                  ? 'bg-gold-600 text-white'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-            >
-              Chuyển khoản
-            </button>
-          </div>
-
-          {paymentMethod === 'vietqr' ? (
-            <div className="text-center">
-              <div className="bg-stone-100 rounded-xl p-6 mb-4">
-                <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center">
-                  <div className="text-center text-stone-400">
-                    <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                    </svg>
-                    <p className="text-sm">QR Code</p>
-                    <p className="text-xs">(Placeholder)</p>
+          {paymentCode ? (
+            <div className="text-center space-y-4">
+              <div className="bg-stone-100 rounded-xl p-6">
+                {qrUrl ? (
+                  <div className="w-48 h-48 mx-auto">
+                    <img src={qrUrl} alt="QR Code thanh toán" className="w-full h-full object-contain" />
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-stone-200 rounded-xl p-6 flex items-center justify-center">
+                    <span className="text-stone-500 text-sm">QR không khả dụng</span>
+                  </div>
+                )}
               </div>
-              <p className="text-sm text-stone-500">
-                Quét mã QR bằng ứng dụng ngân hàng để thanh toán
+              <div className="bg-stone-50 rounded-lg p-4">
+                <p className="text-sm text-stone-500 mb-1">Mã thanh toán (copy mã này)</p>
+                <p className="text-2xl font-mono font-bold text-gold-600 tracking-wider">{paymentCode}</p>
+              </div>
+              <p className="text-sm text-stone-600">
+                Chuyển khoản đúng số tiền <strong>{selectedPlanData?.price} VNĐ</strong> với nội dung <strong>{`"VOTIVE ${phone}"`}</strong>. Chúng tôi sẽ xác nhận trong vài phút.
               </p>
+              <button onClick={resetForm} className="text-gold-600 hover:text-gold-700 font-medium text-sm">
+                ← Thanh toán gói khác
+              </button>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="bg-stone-50 rounded-lg p-4">
-                <div className="grid grid-cols-3 gap-2 text-sm">
-                  <span className="text-stone-500">Ngân hàng:</span>
-                  <span className="col-span-2 font-medium text-stone-800">Vietcombank</span>
-                  <span className="text-stone-500">Số TK:</span>
-                  <span className="col-span-2 font-medium text-stone-800 font-mono">1234567890</span>
-                  <span className="text-stone-500">Tên TK:</span>
-                  <span className="col-span-2 font-medium text-stone-800">VOTIVE COMPANY</span>
-                  <span className="text-stone-500">Chi nhánh:</span>
-                  <span className="col-span-2 text-stone-600">TP. Hồ Chí Minh</span>
-                </div>
+            <>
+              <div className="flex gap-4 mb-6">
+                <button
+                  onClick={() => setPaymentMethod('vietqr')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
+                    paymentMethod === 'vietqr'
+                      ? 'bg-gold-600 text-white'
+                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  VietQR
+                </button>
+                <button
+                  onClick={() => setPaymentMethod('banking')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
+                    paymentMethod === 'banking'
+                      ? 'bg-gold-600 text-white'
+                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  Chuyển khoản
+                </button>
               </div>
-              <p className="text-sm text-stone-500">
-                Vui lòng ghi rõ nội dung chuyển khoản: <strong>"VOTIVE [Số điện thoại] [Gói dịch vụ]"</strong>
-              </p>
-            </div>
-          )}
 
-          <form onSubmit={handlePayment} className="mt-6">
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Số điện thoại đã đăng ký</label>
-              <input
-                type="tel"
-                required
-                placeholder="0912 345 678"
-                className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isProcessing}
-              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isProcessing ? 'Đang xử lý...' : `Thanh toán ${selectedPlanData?.price} VNĐ`}
-            </button>
-          </form>
+              {paymentMethod === 'vietqr' ? (
+                <div className="text-center">
+                  <div className="bg-stone-100 rounded-xl p-6 mb-4">
+                    <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center">
+                      <div className="text-center text-stone-400">
+                        <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                        </svg>
+                        <p className="text-sm">QR Code</p>
+                        <p className="text-xs">(sau khi chọn gói)</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-stone-500">
+                    Nhấn nút bên dưới để nhận mã QR thanh toán
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-stone-50 rounded-lg p-4">
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <span className="text-stone-500">Ngân hàng:</span>
+                      <span className="col-span-2 font-medium text-stone-800">Vietcombank</span>
+                      <span className="text-stone-500">Số TK:</span>
+                      <span className="col-span-2 font-medium text-stone-800 font-mono">1234567890</span>
+                      <span className="text-stone-500">Tên TK:</span>
+                      <span className="col-span-2 font-medium text-stone-800">VOTIVE COMPANY</span>
+                      <span className="text-stone-500">Chi nhánh:</span>
+                      <span className="col-span-2 text-stone-600">TP. Hồ Chí Minh</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-stone-500">
+                    Vui lòng ghi rõ nội dung chuyển khoản: <strong>"VOTIVE [Số điện thoại]"</strong>
+                  </p>
+                </div>
+              )}
+
+              <form onSubmit={handlePayment} className="mt-6">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-stone-700 mb-1">Số điện thoại đã đăng ký</label>
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="0912 345 678"
+                    className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isProcessing ? 'Đang xử lý...' : `Nhận mã thanh toán - ${selectedPlanData?.price} VNĐ`}
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </section>

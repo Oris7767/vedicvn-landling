@@ -29,3 +29,13 @@ export interface SEOProps {
   canonical?: string;
   ogImage?: string;
 }
+
+export interface SepayCreateOrderBody {
+  chartHash: string;
+  packageId: '1' | '2' | '3' | '4';
+  description?: string;
+}
+
+export interface SepayCheckStatusBody {
+  orderId: string;
+}

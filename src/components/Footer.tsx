@@ -28,20 +28,7 @@ export function Footer() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
             <a href="#home" className="flex items-center gap-2 mb-4">
-              <svg
-                className="w-10 h-10 text-gold-500"
-                viewBox="0 0 100 100"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle cx="50" cy="50" r="45" fill="currentColor" opacity="0.15" />
-                <circle cx="50" cy="50" r="35" fill="currentColor" opacity="0.3" />
-                <circle cx="50" cy="50" r="25" fill="currentColor" opacity="0.5" />
-                <path
-                  d="M50 20 L53 35 L68 35 L56 44 L60 59 L50 50 L40 59 L44 44 L32 35 L47 35 Z"
-                  fill="currentColor"
-                />
-              </svg>
+              <img src="/votive-logo.png" alt="Votive" className="h-10 w-auto" />
               <span className="text-2xl font-serif font-semibold text-white">Votive</span>
             </a>
             <p className="text-stone-400 text-sm leading-relaxed">

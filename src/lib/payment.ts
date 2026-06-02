@@ -1,14 +1,14 @@
 const API_URL = import.meta.env.VITE_PAYMENT_API_URL || '';
 
 const SERVICE_ID_MAP: Record<string, string> = {
-  'chiem-tinh-co-ban': '1',
-  'chiem-tinh-chuyen-sau': '2',
-  'chiem-tinh-prasna': '3',
-  'tarot-1-cau': '4',
-  'tarot-combo': '5',
-  'tarot-offline': '6',
-  'kinh-dich': '7',
-  'phap-su': '8',
+  'chiem-tinh-co-ban': 'chiem-tinh-co-ban',
+  'chiem-tinh-chuyen-sau': 'chiem-tinh-chuyen-sau',
+  'chiem-tinh-prasna': 'chiem-tinh-prasna',
+  'tarot-1-cau': 'tarot-1-cau',
+  'tarot-combo': 'tarot-combo',
+  'tarot-offline': 'tarot-offline',
+  'kinh-dich': 'kinh-dich',
+  'phap-su': 'phap-su',
 };
 
 export interface PaymentResponse {
@@ -40,15 +40,6 @@ export async function createPayment(data: {
   message?: string;
 }): Promise<PaymentResponse> {
   const packageId = SERVICE_ID_MAP[data.serviceId] || data.serviceId;
-  console.log('[DEBUG] createPayment API call:', {
-    url: `${API_URL}/payment/create-order`,
-    body: {
-      chartHash: `${data.serviceId}_${Date.now()}`,
-      packageId,
-      amount: data.amount,
-      description: `Thanh toan ${data.serviceName} - ${data.customerName}`,
-    }
-  });
   
   const response = await fetch(`${API_URL}/payment/create-order`, {
     method: 'POST',
@@ -61,14 +52,11 @@ export async function createPayment(data: {
     }),
   });
 
-  const result = await response.json();
-  console.log('[DEBUG] createPayment API response:', result);
-
   if (!response.ok) {
     throw new Error('Failed to create payment');
   }
 
-  return result;
+  return response.json();
 }
 
 export async function checkPaymentStatus(orderId: string): Promise<PaymentStatus> {

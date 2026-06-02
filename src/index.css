@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-stone-50 text-stone-800 antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 
+           bg-gold-600 text-white font-medium rounded-lg
+           hover:bg-gold-700 transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 
+           border-2 border-gold-600 text-gold-700 font-medium rounded-lg
+           hover:bg-gold-50 transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2;
+  }
+  
+  .section-padding {
+    @apply py-16 md:py-24 px-4;
+  }
+  
+  .container-width {
+    @apply max-w-6xl mx-auto;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gold-600 to-amber-600;
+  }
+}

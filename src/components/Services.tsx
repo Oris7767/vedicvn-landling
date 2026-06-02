@@ -83,8 +83,8 @@ const services: Service[] = [
       'Book trước 24h',
       'Khu vực Q1, Q2, Bình Thạnh',
     ],
-    price: '100,000',
-    priceLabel: 'Q1, Q2, Bình Thạnh',
+    price: 'Liên hệ',
+    priceLabel: 'Liên hệ báo giá',
   },
   {
     id: 'kinh-dich',

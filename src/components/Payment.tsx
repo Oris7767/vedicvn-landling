@@ -2,35 +2,45 @@ import { useState, type FormEvent } from 'react';
 import type { SepayCreateOrderBody } from '../types';
 
 const SERVICE_PRICING: Record<string, { name: string; price: string; description: string }> = {
-  'chiem-tinh-vedic': {
-    name: 'Chiêm Tinh Vệ Đà',
-    price: '500,000',
-    description: 'Phân tích bản đồ sao, dự đoán vận mệnh',
+  'chiem-tinh-co-ban': {
+    name: 'Chiêm Tinh Vệ Đà - Gói Cơ Bản',
+    price: '1,000,000',
+    description: 'Phân tích bản đồ sao, 1 vấn đề',
   },
-  'tarot': {
-    name: 'Tarot',
-    price: '300,000',
-    description: 'Đọc bài Tarot, giải đáp thắc mắc',
+  'chiem-tinh-chuyen-sau': {
+    name: 'Chiêm Tinh Vệ Đà - Gói Chuyên Sâu',
+    price: '2,500,000',
+    description: 'Đại vận, Nakshatra, tiềm năng cá nhân',
   },
-  'phong-thuy': {
-    name: 'Tư vấn Phong Thủy',
-    price: '800,000',
-    description: 'Phân tích phong thủy nhà ở, văn phòng',
+  'chiem-tinh-prasna': {
+    name: 'Chiêm Tinh Đoán Sự (Prasna)',
+    price: '1,000,000',
+    description: 'Động tâm 1 vấn đề + 30 phút tư vấn',
   },
-  'cau-an': {
-    name: 'Cầu an - Giải hạn',
-    price: '1,200,000',
-    description: 'Nghi lễ cầu an, giải hạn',
+  'tarot-1-cau': {
+    name: 'Tarot - 1 Câu Hỏi',
+    price: '120,000',
+    description: 'Q1, Q2, Bình Thạnh',
   },
-  'tu-van-tam-linh': {
-    name: 'Tư vấn Tâm linh',
-    price: '500,000',
-    description: 'Luận giải giấc mơ, tư vấn tâm linh',
+  'tarot-combo': {
+    name: 'Tarot - Combo 3 Câu Hỏi',
+    price: '350,000',
+    description: 'Q1, Q2, Bình Thạnh',
   },
-  'lich-ngay-gio': {
-    name: 'Xem Lịch Ngày Giờ',
-    price: '200,000',
-    description: 'Lịch vạn niên, giờ hoàng đạo',
+  'tarot-offline': {
+    name: 'Tarot Offline',
+    price: '100,000',
+    description: 'Q1, Q2, Bình Thạnh, book 24h',
+  },
+  'kinh-dich': {
+    name: 'Kinh Dịch',
+    price: '120,000',
+    description: 'Động tâm 1 vấn đề + 15 phút tư vấn',
+  },
+  'phap-su': {
+    name: 'Các Pháp Sự Cầu Tài Lộc, Bình An',
+    price: 'Liên hệ',
+    description: 'Nghi lễ cầu tài lộc, bình an, phong thủy',
   },
 };
 

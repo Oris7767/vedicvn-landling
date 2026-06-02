@@ -114,7 +114,7 @@ const services: Service[] = [
 
 type ModalStep = 'payment' | 'confirmed' | 'form' | 'success';
 
-function ServiceModal({ service, onClose }: { service: Service; onClose: () => void }) {
+function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; onClose: () => void; onShowPolicy: () => void }) {
   const [step, setStep] = useState<ModalStep>('payment');
   const [paymentData, setPaymentData] = useState<{ paymentCode: string; amount: number; qrUrl?: string; instructions: string } | null>(null);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
@@ -130,6 +130,7 @@ function ServiceModal({ service, onClose }: { service: Service; onClose: () => v
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const needsBirthInfo = ['chiem-tinh-co-ban', 'chiem-tinh-chuyen-sau'].includes(service.id);
   const needPayment = hasFixedPrice(service.id);
@@ -196,6 +197,12 @@ function ServiceModal({ service, onClose }: { service: Service; onClose: () => v
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!acceptedTerms) {
+      alert('Vui lòng đồng ý với Chính sách và Điều khoản dịch vụ.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -435,10 +442,32 @@ function ServiceModal({ service, onClose }: { service: Service; onClose: () => v
                   />
                 </div>
 
+                <div className="bg-stone-50 rounded-lg p-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      className="mt-1 w-5 h-5 rounded border-stone-300 text-gold-600 focus:ring-gold-500 cursor-pointer"
+                    />
+                    <span className="text-sm text-stone-600">
+                      Tôi đã đọc và đồng ý với{' '}
+                      <button
+                        type="button"
+                        onClick={onShowPolicy}
+                        className="text-gold-600 hover:text-gold-700 underline font-medium"
+                      >
+                        Chính sách và Điều khoản dịch vụ
+                      </button>{' '}
+                      của Votive Academy
+                    </span>
+                  </label>
+                </div>
+
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="btn-primary w-full disabled:opacity-50"
+                  disabled={isSubmitting || !acceptedTerms}
+                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'Đang gửi...' : 'Xác nhận đặt dịch vụ'}
                 </button>
@@ -471,8 +500,90 @@ function ServiceModal({ service, onClose }: { service: Service; onClose: () => v
   );
 }
 
+function PolicyModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 bg-white border-b border-stone-200 p-6 flex items-center justify-between">
+          <h3 className="text-xl font-serif font-bold text-stone-800">Chính sách và Điều khoản dịch vụ</h3>
+          <button onClick={onClose} className="p-2 hover:bg-stone-100 rounded-full transition-colors">
+            <svg className="w-6 h-6 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6 text-sm text-stone-600">
+          <section>
+            <h4 className="font-semibold text-stone-800 mb-2">1. Tuyên bố miễn trừ trách nhiệm (Disclaimer)</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong>Tính chất dịch vụ:</strong> Mọi phân tích, diễn giải và dự đoán dựa trên Hệ thống Chiêm tinh học Vệ Đà chỉ mang tính chất hướng dẫn, tham khảo và hỗ trợ tinh thần.</li>
+              <li><strong>Không thay thế chuyên gia:</strong> Thông tin không có giá trị thay thế cho lời khuyên chuyên môn về pháp lý, tài chính, y tế hoặc tâm lý.</li>
+              <li><strong>Trách nhiệm cá nhân:</strong> Quyết định cuối cùng luôn thuộc về tự do ý chí và trách nhiệm cá nhân 100% của khách hàng.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h4 className="font-semibold text-stone-800 mb-2">2. Chính sách bảo mật</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Chúng tôi chỉ thu thập thông tin cần thiết: Họ tên, Ngày sinh, Giờ sinh, Nơi sinh, Email.</li>
+              <li>Mọi thông tin cá nhân và nội dung trao đổi được giữ bí mật tuyệt đối.</li>
+              <li>File ghi âm/ghi hình sẽ tự động xóa sau <strong>30 ngày</strong> kể từ ngày bàn giao.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h4 className="font-semibold text-stone-800 mb-2">3. Chính sách thanh toán & Không hoàn tiền</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong>Không hoàn tiền:</strong> Tất cả các khoản thanh toán là <strong>cuối cùng và không được hoàn lại</strong> dưới bất kỳ lý do gì.</li>
+              <li><strong>Dời lịch:</strong> Thông báo trước ít nhất <strong>24 giờ</strong>, được hỗ trợ dời tối đa <strong>01 lần</strong>.</li>
+              <li><strong>Vắng mặt:</strong> Quá 15 phút không thông báo = mất quyền hoàn tiền và dời lịch.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h4 className="font-semibold text-stone-800 mb-2">4. Quyền sở hữu trí tuệ</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Tài liệu, báo cáo và file ghi âm là tài sản của Votive Academy.</li>
+              <li>Nghiêm cấm sao chép, phát tán công khai hoặc thương mại hóa nếu chưa có sự đồng ý bằng văn bản.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h4 className="font-semibold text-stone-800 mb-2">5. Quy tắc ứng xử</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Tôn trọng, cởi mở trong buổi tư vấn.</li>
+              <li>Nghiêm cấm hành vi thù địch, xúc phạm chuyên gia.</li>
+              <li>Không yêu cầu giải đoán lá số bên thứ ba khi chưa có sự đồng ý.</li>
+            </ul>
+          </section>
+
+          <div className="pt-4 border-t border-stone-200 text-center">
+            <p className="text-stone-500 italic">
+              Cảm ơn bạn đã tin tưởng Votive Academy!
+            </p>
+          </div>
+        </div>
+
+        <div className="sticky bottom-0 bg-white border-t border-stone-200 p-4">
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-gold-600 hover:bg-gold-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Đã hiểu
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Services() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
 
   return (
     <>
@@ -540,7 +651,15 @@ export function Services() {
       </section>
 
       {selectedService && (
-        <ServiceModal service={selectedService} onClose={() => setSelectedService(null)} />
+        <ServiceModal
+          service={selectedService}
+          onClose={() => setSelectedService(null)}
+          onShowPolicy={() => setShowPolicyModal(true)}
+        />
+      )}
+
+      {showPolicyModal && (
+        <PolicyModal onClose={() => setShowPolicyModal(false)} />
       )}
     </>
   );

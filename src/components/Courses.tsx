@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { saveBooking } from '../lib/supabase';
 
 const courses = [
   {
@@ -80,15 +81,13 @@ function CourseModal({ course, onClose }: { course: typeof courses[0]; onClose: 
     setIsSubmitting(true);
 
     try {
-      const apiUrl = import.meta.env.VITE_CONTACT_API_URL || '/api/contact';
-      await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          subject: `Đăng ký khóa học: ${course.title}`,
-          message: `Tôi muốn đăng ký khóa học ${course.title}. ${formData.message}`,
-        }),
+      await saveBooking({
+        type: 'course',
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        course: course.title,
+        message: formData.message,
       });
       setSubmitted(true);
     } catch {

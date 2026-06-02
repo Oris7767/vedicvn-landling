@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { ContactFormData, ServiceBookingFormData } from '../types';
+import { saveBooking } from '../lib/supabase';
 
 const SERVICE_OPTIONS = [
   { value: 'chiem-tinh-vedic', label: 'Chiêm Tinh Vệ Đà' },
@@ -15,7 +15,7 @@ const SERVICE_OPTIONS = [
 const ASTROLOGY_SERVICES = ['chiem-tinh-vedic'];
 
 function ContactForm() {
-  const [formData, setFormData] = useState<ContactFormData>({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
@@ -29,23 +29,18 @@ function ContactForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const apiUrl = import.meta.env.VITE_CONTACT_API_URL || '/api/contact';
-
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      await saveBooking({
+        type: 'contact',
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: `${formData.subject}: ${formData.message}`,
       });
-
-      if (response.ok) {
-        setSubmitted(true);
-        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-      } else {
-        alert('Có lỗi xảy ra. Vui lòng thử lại.');
-      }
+      setSubmitted(true);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch {
-      alert('Không thể kết nối. Vui lòng thử lại sau.');
+      alert('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }
@@ -146,7 +141,7 @@ function ContactForm() {
 }
 
 function BookingForm() {
-  const [formData, setFormData] = useState<ServiceBookingFormData>({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
@@ -163,32 +158,31 @@ function BookingForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const apiUrl = import.meta.env.VITE_BOOKING_API_URL || '/api/booking';
-
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      await saveBooking({
+        type: 'service',
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        service: formData.serviceType,
+        message: formData.message,
+        birth_date: formData.birthDate,
+        birth_time: formData.birthTime,
+        location: formData.birthPlace,
       });
-
-      if (response.ok) {
-        setSubmitted(true);
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          serviceType: '',
-          birthDate: '',
-          birthTime: '',
-          birthPlace: '',
-          message: '',
-        });
-      } else {
-        alert('Có lỗi xảy ra. Vui lòng thử lại.');
-      }
+      setSubmitted(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        serviceType: '',
+        birthDate: '',
+        birthTime: '',
+        birthPlace: '',
+        message: '',
+      });
     } catch {
-      alert('Không thể kết nối. Vui lòng thử lại sau.');
+      alert('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }

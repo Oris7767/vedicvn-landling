@@ -392,7 +392,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-stone-800 mb-1">Email</h3>
-                  <p className="text-stone-600">contact@votive.vedicvn.com</p>
+                  <p className="text-stone-600">votive@vedicvn.com</p>
                 </div>
               </div>
             </div>
@@ -406,7 +406,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-stone-800 mb-1">Điện thoại</h3>
-                  <p className="text-stone-600">0912 345 678</p>
+                  <p className="text-stone-600">0385448747</p>
                   <p className="text-sm text-stone-500 mt-1">Thứ 2 - Thứ 7: 8:00 - 18:00</p>
                 </div>
               </div>
@@ -422,10 +422,6 @@ export function Contact() {
                 <li className="flex items-start gap-2">
                   <span className="text-gold-600">★</span>
                   Chúng tôi sẽ liên hệ xác nhận trong vòng 24 giờ
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-gold-600">★</span>
-                  Hoàn tiền 100% nếu không hài lòng
                 </li>
               </ul>
             </div>

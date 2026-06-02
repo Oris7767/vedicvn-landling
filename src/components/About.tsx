@@ -52,17 +52,14 @@ export function About() {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="aspect-square rounded-2xl bg-gradient-to-br from-gold-100 to-amber-100 p-8 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-8xl mb-4">🕉️</div>
-                <p className="text-gold-700 font-serif text-xl italic">
-                  "Tâm an, vạn sự tự tại"
-                </p>
-              </div>
+          {/* Decorative divider symbol */}
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <span className="text-6xl text-gold-400/70">🕉️</span>
+              <p className="mt-4 text-gold-600/80 font-serif italic text-lg">
+                "Tâm an, vạn sự tự tại"
+              </p>
             </div>
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gold-200/50 rounded-full blur-2xl" />
-            <div className="absolute -top-6 -left-6 w-24 h-24 bg-amber-200/50 rounded-full blur-2xl" />
           </div>
         </div>
       </div>

@@ -412,18 +412,18 @@ export function Contact() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-gold-100 to-amber-100 rounded-xl p-6">
-              <h4 className="font-semibold text-stone-800 mb-3">Lưu ý khi đặt lịch</h4>
-              <ul className="space-y-2 text-sm text-stone-600">
-                <li className="flex items-start gap-2">
-                  <span className="text-gold-600">★</span>
-                  Dịch vụ Chiêm Tinh Vệ Đà cần cung cấp ngày, giờ và nơi sinh để luận giải chính xác
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-gold-600">★</span>
-                  Chúng tôi sẽ liên hệ xác nhận trong vòng 24 giờ
-                </li>
-              </ul>
+            <div className="grid grid-cols-4 gap-3">
+              {[
+                { icon: '🧘', label: 'Yoga' },
+                { icon: '🌿', label: 'Ayurveda' },
+                { icon: '💃', label: 'Múa Ấn Độ' },
+                { icon: '🪔', label: 'Diya' },
+              ].map((item) => (
+                <div key={item.label} className="text-center p-3 bg-stone-50 rounded-lg">
+                  <span className="text-2xl block mb-1">{item.icon}</span>
+                  <span className="text-xs text-stone-500">{item.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

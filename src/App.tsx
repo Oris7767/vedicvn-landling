@@ -5,7 +5,7 @@ import { Courses } from './components/Courses';
 import { Services } from './components/Services';
 import { About } from './components/About';
 import { Contact } from './components/Contact';
-import { Payment } from './components/Payment';
+import { DividerIcons } from './components/DividerIcons';
 import { Footer } from './components/Footer';
 
 export default function App() {
@@ -23,7 +23,7 @@ export default function App() {
           <Services />
           <About />
           <Contact />
-          <Payment />
+          <DividerIcons />
         </main>
         <Footer />
       </div>

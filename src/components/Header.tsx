@@ -14,6 +14,7 @@ export function Header() {
 
   const navItems = [
     { label: 'Trang chủ', href: '#home' },
+    { label: 'Khóa học', href: '#courses' },
     { label: 'Dịch vụ', href: '#services' },
     { label: 'Giới thiệu', href: '#about' },
     { label: 'Liên hệ', href: '#contact' },

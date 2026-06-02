@@ -1,13 +1,18 @@
 import { useState, type FormEvent } from 'react';
-import type { BookingFormData, ContactFormData } from '../types';
+import type { ContactFormData, ServiceBookingFormData } from '../types';
 
 const SERVICE_OPTIONS = [
+  { value: 'chiem-tinh-vedic', label: 'Chiêm Tinh Vệ Đà' },
+  { value: 'tarot', label: 'Tarot' },
   { value: 'phong-thuy', label: 'Tư vấn Phong Thủy' },
   { value: 'cau-an', label: 'Cầu an - Giải hạn' },
   { value: 'tu-van-tam-linh', label: 'Tư vấn Tâm linh' },
   { value: 'lich-ngay-gio', label: 'Xem Lịch Ngày Giờ' },
+  { value: 'khoa-hoc', label: 'Khóa học Vedic' },
   { value: 'khac', label: 'Dịch vụ khác' },
 ];
+
+const ASTROLOGY_SERVICES = ['chiem-tinh-vedic'];
 
 function ContactForm() {
   const [formData, setFormData] = useState<ContactFormData>({
@@ -112,6 +117,7 @@ function ContactForm() {
             <option value="">Chọn chủ đề</option>
             <option value="tu-van">Tư vấn dịch vụ</option>
             <option value="dat-lich">Đặt lịch hẹn</option>
+            <option value="khoa-hoc">Tư vấn khóa học</option>
             <option value="giai-dap">Giải đáp thắc mắc</option>
             <option value="khac">Khác</option>
           </select>
@@ -140,12 +146,14 @@ function ContactForm() {
 }
 
 function BookingForm() {
-  const [formData, setFormData] = useState<BookingFormData>({
+  const [formData, setFormData] = useState<ServiceBookingFormData>({
     name: '',
     email: '',
     phone: '',
     serviceType: '',
-    preferredDate: '',
+    birthDate: '',
+    birthTime: '',
+    birthPlace: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -166,7 +174,16 @@ function BookingForm() {
 
       if (response.ok) {
         setSubmitted(true);
-        setFormData({ name: '', email: '', phone: '', serviceType: '', preferredDate: '', message: '' });
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          serviceType: '',
+          birthDate: '',
+          birthTime: '',
+          birthPlace: '',
+          message: '',
+        });
       } else {
         alert('Có lỗi xảy ra. Vui lòng thử lại.');
       }
@@ -176,6 +193,8 @@ function BookingForm() {
       setIsSubmitting(false);
     }
   };
+
+  const needsBirthInfo = ASTROLOGY_SERVICES.includes(formData.serviceType);
 
   if (submitted) {
     return (
@@ -248,17 +267,48 @@ function BookingForm() {
           </select>
         </div>
       </div>
+
+      {needsBirthInfo && (
+        <div className="bg-amber-50 rounded-xl p-4 space-y-4">
+          <h5 className="font-medium text-stone-700 flex items-center gap-2">
+            <span>⭐</span> Thông tin sinh nhật để luận giải chiêm tinh
+          </h5>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-stone-600 mb-1">Ngày sinh *</label>
+              <input
+                type="date"
+                required
+                value={formData.birthDate}
+                onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-600 mb-1">Giờ sinh</label>
+              <input
+                type="time"
+                value={formData.birthTime}
+                onChange={(e) => setFormData({ ...formData, birthTime: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-600 mb-1">Nơi sinh</label>
+              <input
+                type="text"
+                value={formData.birthPlace}
+                onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors"
+                placeholder="TP. Hồ Chí Minh"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div>
-        <label className="block text-sm font-medium text-stone-700 mb-1">Ngày mong muốn</label>
-        <input
-          type="date"
-          value={formData.preferredDate}
-          onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
-          className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-stone-700 mb-1">Ghi chú</label>
+        <label className="block text-sm font-medium text-stone-700 mb-1">Nội dung cần tư vấn</label>
         <textarea
           rows={3}
           value={formData.message}
@@ -290,7 +340,7 @@ export function Contact() {
             Sẵn sàng hỗ trợ bạn
           </h2>
           <p className="text-stone-600 max-w-2xl mx-auto">
-            Điền thông tin và chúng tôi sẽ liên hệ lại trong 24 giờ để tư vấn 
+            Điền thông tin và chúng tôi sẽ liên hệ lại trong 24 giờ để tư vấn
             và đặt lịch hẹn phù hợp với bạn.
           </p>
         </div>
@@ -366,6 +416,24 @@ export function Contact() {
                   <p className="text-sm text-stone-500 mt-1">Thứ 2 - Thứ 7: 8:00 - 18:00</p>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-gold-100 to-amber-100 rounded-xl p-6">
+              <h4 className="font-semibold text-stone-800 mb-3">Lưu ý khi đặt lịch</h4>
+              <ul className="space-y-2 text-sm text-stone-600">
+                <li className="flex items-start gap-2">
+                  <span className="text-gold-600">★</span>
+                  Dịch vụ Chiêm Tinh Vệ Đà cần cung cấp ngày, giờ và nơi sinh để luận giải chính xác
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-gold-600">★</span>
+                  Chúng tôi sẽ liên hệ xác nhận trong vòng 24 giờ
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-gold-600">★</span>
+                  Hoàn tiền 100% nếu không hài lòng
+                </li>
+              </ul>
             </div>
           </div>
         </div>

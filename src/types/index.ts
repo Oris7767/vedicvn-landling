@@ -4,6 +4,20 @@ export interface Service {
   description: string;
   icon: string;
   features: string[];
+  price?: string;
+  priceLabel?: string;
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  icon: string;
+  description: string;
+  sessions: string;
+  format: string;
+  instructor: string;
+  highlights: string[];
+  special?: boolean;
 }
 
 export interface BookingFormData {
@@ -23,6 +37,17 @@ export interface ContactFormData {
   message: string;
 }
 
+export interface ServiceBookingFormData {
+  name: string;
+  email: string;
+  phone: string;
+  serviceType: string;
+  birthDate?: string;
+  birthTime?: string;
+  birthPlace?: string;
+  message: string;
+}
+
 export interface SEOProps {
   title?: string;
   description?: string;
@@ -32,8 +57,10 @@ export interface SEOProps {
 
 export interface SepayCreateOrderBody {
   chartHash: string;
-  packageId: '1' | '2' | '3' | '4';
+  packageId: '1' | '2' | '3' | '4' | string;
   description?: string;
+  amount?: number;
+  serviceType?: string;
 }
 
 export interface SepayCheckStatusBody {

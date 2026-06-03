@@ -80,12 +80,7 @@ export function Footer({ onNavigate }: FooterProps) {
             <ul className="space-y-2">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-stone-400 hover:text-gold-400 transition-colors text-sm"
-                  >
-                    {link.label}
-                  </a>
+                  {renderLink(link)}
                 </li>
               ))}
             </ul>

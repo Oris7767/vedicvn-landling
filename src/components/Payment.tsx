@@ -1,10 +1,5 @@
 import { useState, type FormEvent } from 'react';
 import type { SepayCreateOrderBody } from '../types';
-import type { Page } from '../App';
-
-interface PaymentProps {
-  onNavigate: (page: Page) => void;
-}
 
 const SERVICE_PRICING: Record<string, { name: string; price: string; description: string }> = {
   'chiem-tinh-co-ban': {
@@ -106,7 +101,7 @@ function generateChartHash(phone: string): string {
   return `votive_${Math.abs(hash).toString(36)}_${timestamp.toString(36)}`;
 }
 
-export function Payment({ onNavigate }: PaymentProps) {
+export function Payment() {
   const [paymentMethod, setPaymentMethod] = useState<'vietqr' | 'banking'>('vietqr');
   const [paymentType, setPaymentType] = useState<'service' | 'consultation'>('service');
   const [selectedService, setSelectedService] = useState<string>('');
@@ -387,19 +382,23 @@ export function Payment({ onNavigate }: PaymentProps) {
                         />
                         <div className="text-sm text-stone-600 leading-relaxed">
                           Tôi đã đọc, hiểu rõ và đồng ý với{' '}
-                          <button
-                            onClick={() => onNavigate('terms')}
+                          <a
+                            href="/chinh-sach-dich-vu"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-gold-600 hover:text-gold-700 underline font-medium"
                           >
                             Điều khoản dịch vụ
-                          </button>{' '}
+                          </a>{' '}
                           và{' '}
-                          <button
-                            onClick={() => onNavigate('ethics')}
+                          <a
+                            href="/ethics"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-gold-600 hover:text-gold-700 underline font-medium"
                           >
                             Bộ quy tắc đạo đức nghề nghiệp
-                          </button>{' '}
+                          </a>{' '}
                           của Votive Academy.
                         </div>
                       </label>

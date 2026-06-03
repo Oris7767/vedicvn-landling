@@ -3,10 +3,10 @@ export function Footer() {
 
   const footerLinks = {
     services: [
-      { label: 'Tư vấn Phong Thủy', href: '#services' },
-      { label: 'Cầu an - Giải hạn', href: '#services' },
-      { label: 'Tư vấn Tâm linh', href: '#services' },
-      { label: 'Xem Lịch Ngày Giờ', href: '#services' },
+      { label: 'Chiêm Tinh Vệ Đà', href: '#services' },
+      { label: 'Prasna (Horary)', href: '#services' },
+      { label: 'Tarot & Kinh Dịch', href: '#services' },
+      { label: 'Các Pháp Sự', href: '#services' },
     ],
     support: [
       { label: 'Câu hỏi thường gặp', href: '#faq' },
@@ -18,7 +18,7 @@ export function Footer() {
       { label: 'Về chúng tôi', href: '#about' },
       { label: 'Liên hệ', href: '#contact' },
       { label: 'Blog', href: 'https://vedicvn.com/blog' },
-      { label: 'Tuyển dụng', href: '#careers' },
+      { label: 'Bộ quy tắc đạo đức', href: '/ethics' },
     ],
   };
 
@@ -32,8 +32,8 @@ export function Footer() {
               <span className="text-2xl font-serif font-semibold text-white">Votive</span>
             </a>
             <p className="text-stone-400 text-sm leading-relaxed">
-              Dịch vụ tâm linh và phong thủy chuyên nghiệp, 
-              giúp bạn tìm lại sự cân bằng và bình an trong cuộc sống.
+              Votive Academy thực hành Chiêm tinh học Vệ Đà (Jyotish) với tinh thần
+              trung thực, trách nhiệm và tôn trọng tự do ý chí của mỗi cá nhân.
             </p>
           </div>
 

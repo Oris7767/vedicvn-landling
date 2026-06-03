@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import type { SepayCreateOrderBody } from '../types';
 
 const SERVICE_PRICING: Record<string, { name: string; price: string; description: string }> = {
@@ -110,6 +111,7 @@ export function Payment() {
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [phone, setPhone] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const selectedServiceData = selectedService ? SERVICE_PRICING[selectedService] : null;
   const selectedPackageData = CONSULTATION_PACKAGES.find((p) => p.id === selectedPackage);
@@ -120,6 +122,12 @@ export function Payment() {
 
   const handlePayment = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!acceptedTerms) {
+      alert('Vui lòng đọc và đồng ý với Điều khoản dịch vụ trước khi thanh toán.');
+      return;
+    }
+
     setIsProcessing(true);
     setPaymentCode(null);
     setQrUrl(null);
@@ -162,6 +170,7 @@ export function Payment() {
     setPhone('');
     setSelectedService('');
     setSelectedPackage('standard');
+    setAcceptedTerms(false);
   };
 
   return (
@@ -174,7 +183,7 @@ export function Payment() {
           </h2>
           <p className="text-stone-600 max-w-2xl mx-auto">
             Thanh toán qua chuyển khoản ngân hàng hoặc mã QR VietQR.
-            Hoàn tiền 100% nếu không hài lòng.
+            Vui lòng đọc kỹ điều khoản trước khi thanh toán.
           </p>
         </div>
 
@@ -363,9 +372,40 @@ export function Payment() {
                         className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition-colors"
                       />
                     </div>
+
+                    <div className="mb-4 p-4 bg-stone-50 rounded-lg border border-stone-200">
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={acceptedTerms}
+                          onChange={(e) => setAcceptedTerms(e.target.checked)}
+                          className="mt-1 w-4 h-4 text-gold-600 border-stone-300 rounded focus:ring-gold-500 cursor-pointer"
+                        />
+                        <div className="text-sm text-stone-600 leading-relaxed">
+                          Tôi đã đọc, hiểu rõ và đồng ý với{' '}
+                          <Link
+                            to="/chinh-sach-dich-vu"
+                            target="_blank"
+                            className="text-gold-600 hover:text-gold-700 underline font-medium"
+                          >
+                            Điều khoản dịch vụ
+                          </Link>{' '}
+                          và{' '}
+                          <Link
+                            to="/ethics"
+                            target="_blank"
+                            className="text-gold-600 hover:text-gold-700 underline font-medium"
+                          >
+                            Bộ quy tắc đạo đức nghề nghiệp
+                          </Link>{' '}
+                          của Votive Academy.
+                        </div>
+                      </label>
+                    </div>
+
                     <button
                       type="submit"
-                      disabled={isProcessing || (paymentType === 'service' && !selectedService)}
+                      disabled={isProcessing || (paymentType === 'service' && !selectedService) || !acceptedTerms}
                       className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isProcessing ? 'Đang xử lý...' : `Nhận mã thanh toán - ${currentPrice} VNĐ`}

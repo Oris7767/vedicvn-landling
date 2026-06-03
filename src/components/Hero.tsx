@@ -14,27 +14,29 @@ export function Hero() {
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
           </svg>
-          Dịch vụ tư vấn chuyên nghiệp
+          Chiêm Tinh Học Vệ Đà (Jyotish)
         </div>
 
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-stone-800 mb-6 leading-tight">
-          Khám phá <span className="text-gradient">hệ sinh thái cổ xưa</span>
-          <br />
-          Dẫn lối con đường tâm linh, tự do và sự bình an
+          Hiểu rõ bản thân, <br />
+          <span className="text-gradient">nhận ra tiềm năng và chu kỳ cuộc sống</span>
         </h1>
 
-        <p className="text-lg md:text-xl text-stone-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Chúng tôi cung cấp các dịch vụ tư vấn tâm linh, cầu an, giải hạn 
-          với đội ngũ chuyên gia giàu kinh nghiệm, giúp bạn tìm lại sự cân bằng 
-          và bình an trong cuộc sống.
+        <p className="text-lg md:text-xl text-stone-600 max-w-2xl mx-auto mb-6 leading-relaxed">
+          Votive Academy cung cấp dịch vụ phân tích lá số chiêm tinh Vệ Đà, tư vấn Prasna
+          (Chiêm Tinh Đoán Sự) và hỗ trợ nhận thức cá nhân dựa trên tri thức cổ truyền.
+        </p>
+        <p className="text-sm text-stone-500 max-w-2xl mx-auto mb-10 leading-relaxed italic">
+          Chúng tôi không quyết định số phận. Chiêm tinh phản ánh xu hướng và tiềm năng —
+          mỗi cá nhân luôn có quyền lựa chọn cách phản ứng trước hoàn cảnh.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="#contact" className="btn-primary text-lg px-8 py-4">
-            Đặt lịch tư vấn
-          </a>
-          <a href="#services" className="btn-secondary text-lg px-8 py-4">
+          <a href="#services" className="btn-primary text-lg px-8 py-4">
             Khám phá dịch vụ
+          </a>
+          <a href="/ethics" className="btn-secondary text-lg px-8 py-4">
+            Đọc đạo đức nghề nghiệp
           </a>
         </div>
 
@@ -56,7 +58,7 @@ export function Hero() {
       </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <a href="#services" className="text-gold-600">
+        <a href="#about" className="text-gold-600">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>

@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import type { SEOProps } from '../types';
 
 const DEFAULT_BASE_URL = 'https://votive.vedicvn.com';
-const DEFAULT_TITLE = 'Votive - Dịch vụ Tâm Linh & Phong Thủy';
-const DEFAULT_DESCRIPTION = 'Dịch vụ tư vấn tâm linh, cầu an, giải hạn chuyên nghiệp. Đặt lịch tư vấn riêng với các chuyên gia phong thủy hàng đầu.';
+const DEFAULT_TITLE = 'Votive Academy - Luận Giải Chiêm Tinh Vệ Đà & Khóa Học Chiêm Tinh';
+const DEFAULT_DESCRIPTION = 'Votive Academy - Dịch vụ luận giải Chiêm Tinh Vệ Đà (Vedic Astrology) chuyên nghiệp. Chiêm tinh cơ bản, chuyên sâu, Prasna. Khóa học chiêm tinh học online từ cơ bản đến nâng cao.';
 
 export function SEO({
   title = DEFAULT_TITLE,

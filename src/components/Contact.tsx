@@ -2,17 +2,16 @@ import { useState, type FormEvent } from 'react';
 import { saveBooking } from '../lib/supabase';
 
 const SERVICE_OPTIONS = [
-  { value: 'chiem-tinh-vedic', label: 'Chiêm Tinh Vệ Đà' },
+  { value: 'chiem-tinh-co-ban', label: 'Chiêm Tinh Vệ Đà - Cơ Bản' },
+  { value: 'chiem-tinh-chuyen-sau', label: 'Chiêm Tinh Vệ Đà - Chuyên Sâu' },
+  { value: 'chiem-tinh-prasna', label: 'Chiêm Tinh Đoán Sự (Prasna)' },
   { value: 'tarot', label: 'Tarot' },
-  { value: 'phong-thuy', label: 'Tư vấn Phong Thủy' },
-  { value: 'cau-an', label: 'Cầu an - Giải hạn' },
-  { value: 'tu-van-tam-linh', label: 'Tư vấn Tâm linh' },
-  { value: 'lich-ngay-gio', label: 'Xem Lịch Ngày Giờ' },
-  { value: 'khoa-hoc', label: 'Khóa học Vedic' },
+  { value: 'kinh-dich', label: 'Kinh Dịch' },
+  { value: 'khoa-hoc', label: 'Tư vấn khóa học' },
   { value: 'khac', label: 'Dịch vụ khác' },
 ];
 
-const ASTROLOGY_SERVICES = ['chiem-tinh-vedic'];
+const ASTROLOGY_SERVICES = ['chiem-tinh-co-ban', 'chiem-tinh-chuyen-sau'];
 
 function ContactForm() {
   const [formData, setFormData] = useState({

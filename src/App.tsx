@@ -50,8 +50,8 @@ export default function App() {
   return (
     <>
       <SEO
-        title="Votive Academy - Chiêm Tinh Học Vệ Đà"
-        description="Dịch vụ phân tích lá số chiêm tinh Vệ Đà, tư vấn Prasna (Chiêm Tinh Đoán Sự) và hỗ trợ nhận thức cá nhân dựa trên tri thức cổ truyền."
+        title="Votive Academy - Luận Giải Chiêm Tinh Vệ Đà & Khóa Học Chiêm Tinh"
+        description="Dịch vụ luận giải Chiêm Tinh Vệ Đà (Vedic Astrology) chuyên nghiệp. Chiêm tinh cơ bản, chuyên sâu, Prasna. Khóa học chiêm tinh học online từ cơ bản đến nâng cao."
       />
       <div className="min-h-screen">
         <Header />

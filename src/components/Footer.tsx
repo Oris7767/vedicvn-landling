@@ -9,22 +9,20 @@ export function Footer({ onNavigate }: FooterProps) {
 
   const footerLinks = {
     services: [
-      { label: 'Chiêm Tinh Vệ Đà', href: '#services' },
-      { label: 'Prasna (Horary)', href: '#services' },
-      { label: 'Tarot & Kinh Dịch', href: '#services' },
-      { label: 'Các Pháp Sự', href: '#services' },
+      { label: 'Chiêm Tinh Vệ Đà - Cơ Bản', href: '#services' },
+      { label: 'Chiêm Tinh Vệ Đà - Chuyên Sâu', href: '#services' },
+      { label: 'Chiêm Tinh Đoán Sự (Prasna)', href: '#services' },
+      { label: 'Khóa học Chiêm Tinh', href: '#courses' },
     ],
     support: [
-      { label: 'Câu hỏi thường gặp', href: '#faq' },
-      { label: 'Hướng dẫn đặt lịch', href: '#guide' },
       { label: 'Chính sách bảo mật', href: '#privacy' },
       { label: 'Điều khoản dịch vụ', onClick: () => onNavigate('terms') },
+      { label: 'Bộ quy tắc đạo đức', onClick: () => onNavigate('ethics') },
     ],
     company: [
       { label: 'Về chúng tôi', href: '#about' },
       { label: 'Liên hệ', href: '#contact' },
-      { label: 'Blog', href: 'https://vedicvn.com/blog' },
-      { label: 'Bộ quy tắc đạo đức', onClick: () => onNavigate('ethics') },
+      { label: 'Blog Vedic', href: 'https://vedicvn.com/blog' },
     ],
   };
 

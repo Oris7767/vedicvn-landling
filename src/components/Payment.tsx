@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import type { SepayCreateOrderBody } from '../types';
 
 const SERVICE_PRICING: Record<string, { name: string; price: string; description: string }> = {
@@ -383,21 +382,23 @@ export function Payment() {
                         />
                         <div className="text-sm text-stone-600 leading-relaxed">
                           Tôi đã đọc, hiểu rõ và đồng ý với{' '}
-                          <Link
-                            to="/chinh-sach-dich-vu"
+                          <a
+                            href="/chinh-sach-dich-vu"
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="text-gold-600 hover:text-gold-700 underline font-medium"
                           >
                             Điều khoản dịch vụ
-                          </Link>{' '}
+                          </a>{' '}
                           và{' '}
-                          <Link
-                            to="/ethics"
+                          <a
+                            href="/ethics"
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="text-gold-600 hover:text-gold-700 underline font-medium"
                           >
                             Bộ quy tắc đạo đức nghề nghiệp
-                          </Link>{' '}
+                          </a>{' '}
                           của Votive Academy.
                         </div>
                       </label>

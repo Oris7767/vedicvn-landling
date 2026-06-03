@@ -8,6 +8,7 @@ import { About } from './components/About';
 import { Contact } from './components/Contact';
 import { DividerIcons } from './components/DividerIcons';
 import { Footer } from './components/Footer';
+import { ChatWidget } from './components/ChatWidget';
 import { EthicsPage } from './components/EthicsPage';
 import { TermsPage } from './components/TermsPage';
 
@@ -64,6 +65,7 @@ export default function App() {
           <DividerIcons />
         </main>
         <Footer onNavigate={setCurrentPage} />
+        <ChatWidget />
       </div>
     </>
   );

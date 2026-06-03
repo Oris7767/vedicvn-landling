@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { saveBooking } from '../lib/supabase';
+import { useChat } from '../contexts/ChatContext';
 
 const courses = [
   {
@@ -225,6 +226,12 @@ function CourseModal({ course, onClose }: { course: typeof courses[0]; onClose: 
 
 export function Courses() {
   const [selectedCourse, setSelectedCourse] = useState<typeof courses[0] | null>(null);
+  const { openChat } = useChat();
+
+  const handleCourseClick = (course: typeof courses[0]) => {
+    const message = `Xin chào! Tôi quan tâm đến khóa học "${course.title}" - ${course.sessions}. Bạn có thể tư vấn cho tôi được không?`;
+    openChat(message);
+  };
 
   return (
     <>
@@ -283,10 +290,10 @@ export function Courses() {
                 <p className="text-xs text-stone-400 mb-4">{course.instructor}</p>
 
                 <button
-                  onClick={() => setSelectedCourse(course)}
+                  onClick={() => handleCourseClick(course)}
                   className="w-full py-2.5 px-4 bg-stone-100 hover:bg-gold-50 text-stone-700 hover:text-gold-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                 >
-                  Tìm hiểu thêm
+                  🪐 Tư vấn ngay
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>

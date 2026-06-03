@@ -45,14 +45,14 @@ export function Hero({ onNavigate }: HeroProps) {
             onClick={() => onNavigate('ethics')}
             className="btn-secondary text-lg px-8 py-4"
           >
-            Đọc đạo đức nghề nghiệp
+            Tuyên ngôn của Votive
           </button>
         </div>
 
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
           {[
-            { value: '10+', label: 'Năm kinh nghiệm' },
-            { value: '5000+', label: 'Khách hàng' },
+            { value: '6+', label: 'Năm kinh nghiệm' },
+            { value: '1000+', label: 'Khách hàng' },
             { value: '98%', label: 'Hài lòng' },
             { value: '24/7', label: 'Hỗ trợ' },
           ].map((stat) => (

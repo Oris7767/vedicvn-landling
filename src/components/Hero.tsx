@@ -1,4 +1,10 @@
-export function Hero() {
+import type { Page } from '../App';
+
+interface HeroProps {
+  onNavigate: (page: Page) => void;
+}
+
+export function Hero({ onNavigate }: HeroProps) {
   return (
     <section
       id="home"
@@ -35,9 +41,12 @@ export function Hero() {
           <a href="#services" className="btn-primary text-lg px-8 py-4">
             Khám phá dịch vụ
           </a>
-          <a href="/ethics" className="btn-secondary text-lg px-8 py-4">
+          <button
+            onClick={() => onNavigate('ethics')}
+            className="btn-secondary text-lg px-8 py-4"
+          >
             Đọc đạo đức nghề nghiệp
-          </a>
+          </button>
         </div>
 
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">

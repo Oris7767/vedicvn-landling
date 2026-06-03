@@ -1,4 +1,10 @@
-export function Footer() {
+import type { Page } from '../App';
+
+interface FooterProps {
+  onNavigate: (page: Page) => void;
+}
+
+export function Footer({ onNavigate }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
@@ -12,14 +18,30 @@ export function Footer() {
       { label: 'Câu hỏi thường gặp', href: '#faq' },
       { label: 'Hướng dẫn đặt lịch', href: '#guide' },
       { label: 'Chính sách bảo mật', href: '#privacy' },
-      { label: 'Điều khoản dịch vụ', href: '/chinh-sach-dich-vu' },
+      { label: 'Điều khoản dịch vụ', onClick: () => onNavigate('terms') },
     ],
     company: [
       { label: 'Về chúng tôi', href: '#about' },
       { label: 'Liên hệ', href: '#contact' },
       { label: 'Blog', href: 'https://vedicvn.com/blog' },
-      { label: 'Bộ quy tắc đạo đức', href: '/ethics' },
+      { label: 'Bộ quy tắc đạo đức', onClick: () => onNavigate('ethics') },
     ],
+  };
+
+  const renderLink = (link: { label: string; href?: string; onClick?: () => void }) => {
+    const commonClass = 'text-stone-400 hover:text-gold-400 transition-colors text-sm cursor-pointer';
+    if (link.href) {
+      return (
+        <a href={link.href} className={commonClass}>
+          {link.label}
+        </a>
+      );
+    }
+    return (
+      <button onClick={link.onClick} className={`${commonClass} text-left hover:text-gold-300`}>
+        {link.label}
+      </button>
+    );
   };
 
   return (
@@ -74,12 +96,7 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-stone-400 hover:text-gold-400 transition-colors text-sm"
-                  >
-                    {link.label}
-                  </a>
+                  {renderLink(link)}
                 </li>
               ))}
             </ul>

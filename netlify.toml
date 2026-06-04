@@ -17,7 +17,7 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://qr.sepay.vn; connect-src 'self' https://*.supabase.co https://api.sepay.vn https://*.onrender.com https://*.railway.app https://*.render.com https://qr.sepay.vn"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://qr.sepay.vn; connect-src 'self' https://*.supabase.co https://api.sepay.vn https://*.onrender.com https://*.railway.app https://*.render.com https://qr.sepay.vn https://va.vedicvn.sbs"
 
 [[headers]]
   for = "/assets/*"

@@ -2,20 +2,52 @@ import { useState, useEffect } from 'react';
 import type { Service } from '../types';
 import { createPayment, checkPaymentStatus } from '../lib/payment';
 import { saveBooking } from '../lib/supabase';
+import {
+  CelestialWheelIcon,
+  SuryaIcon,
+  PrasnaIcon,
+  TarotCardIcon,
+  IChingIcon,
+  RitualFlameIcon,
+  DiyaIcon,
+} from './icons/VedicIcons';
+import {
+  Check,
+  Clock,
+  QrCode,
+  ShieldCheck,
+  AlertCircle,
+  Copy,
+  ExternalLink,
+  X,
+  ArrowRight,
+  CheckCircle2,
+} from 'lucide-react';
 
 // Services that don't require upfront payment
-const NO_PAYMENT_SERVICES = ['phap-su'];
+const NO_PAYMENT_SERVICES = ['phap-su', 'tarot-offline'];
 
-const services: Service[] = [
+type ServiceCategory = 'all' | 'jyotish' | 'tarot-iching' | 'special';
+
+interface ExtendedService extends Service {
+  category: 'jyotish' | 'tarot-iching' | 'special';
+  badge?: string;
+  isPopular?: boolean;
+}
+
+const services: ExtendedService[] = [
   {
     id: 'chiem-tinh-co-ban',
     title: 'Chiêm Tinh Vệ Đà - Gói Cơ Bản',
-    description: 'Phân tích bản đồ sao gốc, chuyên sâu 1 vấn đề (tài chính, hôn nhân, sức khỏe...)',
-    icon: '⭐',
+    description: 'Phân tích bản đồ sao gốc D1, 12 nhà và trọng tâm 1 khía cạnh (tài chính, hôn nhân, sự nghiệp hoặc sức khỏe).',
+    category: 'jyotish',
+    badge: 'Phổ biến',
     features: [
-      'Phân tích bản đồ sao gốc',
-      'Chuyên sâu 1 vấn đề',
-      'Tư vấn tài chính, hôn nhân, sức khỏe',
+      'Phân tích bản đồ sao gốc (D1 Rashi Chart)',
+      'Giải mã Cung Mọc (Lagna) & 9 Graha',
+      'Tư vấn trọng tâm 1 khía cạnh đời sống',
+      'Thời lượng: 45 phút trao đổi trực tiếp',
+      'Bàn giao file ghi âm buổi luận giải',
     ],
     price: '1,000,000',
     priceLabel: 'Gói cơ bản',
@@ -23,13 +55,17 @@ const services: Service[] = [
   {
     id: 'chiem-tinh-chuyen-sau',
     title: 'Chiêm Tinh Vệ Đà - Gói Chuyên Sâu',
-    description: 'Phân tích toàn diện Đại vận, Tiểu vận, chòm sao Nakshatra, tiềm năng cá nhân và biện pháp khắc phục.',
-    icon: '⭐',
+    description: 'Phân tích toàn diện Đại vận Vimshottari, Tiểu vận, chòm sao Nakshatra, tiềm năng nghiệp quả và biện pháp hóa giải (Remedies).',
+    category: 'jyotish',
+    badge: 'Khuyên dùng / Bestseller',
+    isPopular: true,
     features: [
-      'Phân tích Đại vận & Tiểu vận',
-      'Chòm sao (Nakshatra) chuyên sâu',
-      'Tiềm năng cá nhân',
-      'Biện pháp khắc phục',
+      'Phân tích song song D1 Rashi & D9 Navamsha',
+      'Giải mã chi tiết 27 Nakshatra & Phân độ',
+      'Đại vận Vimshottari & Tiểu vận 5 năm',
+      'Biện pháp hóa giải & cân bằng thân tâm',
+      'Thời lượng: 90 phút tư vấn chuyên sâu 1-1',
+      'Bàn giao file ghi âm & bản tóm tắt cá nhân',
     ],
     price: '2,500,000',
     priceLabel: 'Gói chuyên sâu',
@@ -37,12 +73,14 @@ const services: Service[] = [
   {
     id: 'chiem-tinh-prasna',
     title: 'Chiêm Tinh Đoán Sự (Prasna)',
-    description: 'Động tâm 1 vấn đề cụ thể, kèm 30 phút tư vấn trực tiếp.',
-    icon: '⭐',
+    description: 'Động tâm giải đoán 1 vấn đề cụ thể tại thời khắc khởi ý niệm (Horary Astrology), hỗ trợ quyết định bước ngoặt.',
+    category: 'jyotish',
+    badge: 'Vấn thời khắc',
     features: [
-      'Động tâm 1 vấn đề',
-      '30 phút tư vấn',
-      'Giải đáp nhanh chóng',
+      'Lập lá số tại thời điểm khởi tâm câu hỏi',
+      'Phân tích nút thắt quyết định cấp bách',
+      '30 phút tư vấn giải đáp trực tiếp',
+      'Phù hợp: hợp tác, di chuyển, giao dịch lớn',
     ],
     price: '1,000,000',
     priceLabel: 'Gói Prasna',
@@ -50,12 +88,12 @@ const services: Service[] = [
   {
     id: 'tarot-1-cau',
     title: 'Tarot - 1 Câu Hỏi',
-    description: 'Đọc bài Tarot 1 câu hỏi cụ thể. Áp dụng khu vực Q1, Q2, Bình Thạnh.',
-    icon: '🃏',
+    description: 'Đọc bài Tarot giải đáp 1 câu hỏi cụ thể, định hướng nhanh. Áp dụng khu vực Q1, Q2, Bình Thạnh hoặc Online.',
+    category: 'tarot-iching',
     features: [
-      '1 câu hỏi cụ thể',
-      'Giải đáp nhanh',
-      'Tư vấn định hướng',
+      '1 câu hỏi cụ thể, trọng tâm',
+      'Giải đáp nhanh chóng, thấu suốt',
+      'Tư vấn định hướng giải pháp tích cực',
     ],
     price: '120,000',
     priceLabel: 'Q1, Q2, Bình Thạnh',
@@ -63,38 +101,41 @@ const services: Service[] = [
   {
     id: 'tarot-combo',
     title: 'Tarot - Combo 3 Câu Hỏi',
-    description: 'Đọc bài Tarot combo 3 câu hỏi. Áp dụng khu vực Q1, Q2, Bình Thạnh.',
-    icon: '🃏',
+    description: 'Đọc bài Tarot combo 3 câu hỏi liên hoàn, phân tích toàn diện nhiều khía cạnh của một vấn đề nan giải.',
+    category: 'tarot-iching',
+    badge: 'Tiết kiệm',
     features: [
-      '3 câu hỏi',
-      'Phân tích toàn diện hơn',
-      'Tiết kiệm chi phí',
+      '3 câu hỏi liên kết đa chiều',
+      'Phân tích nguồn cơn & xu hướng phát triển',
+      'Định hướng lựa chọn phù hợp nhất',
+      'Tiết kiệm chi phí so với từng câu đơn lẻ',
     ],
     price: '350,000',
     priceLabel: 'Q1, Q2, Bình Thạnh',
   },
   {
     id: 'tarot-offline',
-    title: 'Tarot Offline',
-    description: 'Đọc bài Tarot trực tiếp tại điểm dịch vụ. Áp dụng khu vực Q1, Q2, Bình Thạnh. Đặt trước 24h.',
-    icon: '🃏',
+    title: 'Tarot Offline Trực Tiếp',
+    description: 'Trải nghiệm đọc bài Tarot trực tiếp mặt đối mặt tại điểm dịch vụ (Q1, Q2, Bình Thạnh). Yêu cầu đặt trước 24h.',
+    category: 'tarot-iching',
     features: [
-      'Gặp trực tiếp',
-      'Book trước 24h',
+      'Gặp gỡ trực tiếp chuyên gia tư vấn',
+      'Tương tác trực quan với trải bài cổ điển',
       'Khu vực Q1, Q2, Bình Thạnh',
+      'Đặt trước tối thiểu 24 giờ',
     ],
     price: 'Liên hệ',
     priceLabel: 'Liên hệ báo giá',
   },
   {
     id: 'kinh-dich',
-    title: 'Kinh Dịch',
-    description: 'Động tâm 1 vấn đề bằng Kinh Dịch, kèm 15 phút tư vấn.',
-    icon: '📜',
+    title: 'Chiêm Đoán Kinh Dịch',
+    description: 'Động tâm giải quẻ Kinh Dịch cho một vấn đề thời cuộc, công việc hoặc định hướng hành động.',
+    category: 'tarot-iching',
     features: [
-      'Động tâm 1 vấn đề',
-      '15 phút tư vấn',
-      'Giải đáp chính xác',
+      'Gieo quẻ theo thời điểm động tâm',
+      '15 phút luận giải ý nghĩa quẻ Thoán & Hào',
+      'Chỉ dẫn hành động "biết tiến biết thoái"',
     ],
     price: '120,000',
     priceLabel: 'Gói cơ bản',
@@ -102,25 +143,63 @@ const services: Service[] = [
   {
     id: 'phap-su',
     title: 'Các Pháp Sự Cầu Tài Lộc, Bình An',
-    description: 'Nghi lễ cầu tài lộc, bình an, phong thủy theo Kinh Dịch.',
-    icon: '🕯️',
+    description: 'Tư vấn và thực hiện nghi lễ cầu an, tài lộc, cân bằng năng lượng không gian sống theo nguyên lý tri thức cổ truyền.',
+    category: 'special',
     features: [
-      'Cầu tài lộc',
-      'Cầu bình an',
-      'Phong thủy',
+      'Cầu an gia đạo & tĩnh tâm',
+      'Cân bằng năng lượng không gian sống',
+      'Tư vấn phong thủy theo Kinh Dịch',
+      'Khảo sát và tư vấn theo từng trường hợp',
     ],
     price: 'Liên hệ',
     priceLabel: 'Liên hệ báo giá',
   },
 ];
 
+function getServiceIcon(id: string) {
+  switch (id) {
+    case 'chiem-tinh-co-ban':
+      return <CelestialWheelIcon size={32} className="text-votive-red" />;
+    case 'chiem-tinh-chuyen-sau':
+      return <SuryaIcon size={32} className="text-votive-red" />;
+    case 'chiem-tinh-prasna':
+      return <PrasnaIcon size={32} className="text-votive-red" />;
+    case 'tarot-1-cau':
+    case 'tarot-combo':
+    case 'tarot-offline':
+      return <TarotCardIcon size={32} className="text-votive-red" />;
+    case 'kinh-dich':
+      return <IChingIcon size={32} className="text-votive-red" />;
+    case 'phap-su':
+      return <RitualFlameIcon size={32} className="text-votive-red" />;
+    default:
+      return <DiyaIcon size={32} className="text-votive-red" />;
+  }
+}
+
 type ModalStep = 'payment' | 'confirmed' | 'form' | 'success';
 
-function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; onClose: () => void; onShowPolicy: () => void }) {
+function ServiceModal({
+  service,
+  onClose,
+  onShowPolicy,
+}: {
+  service: ExtendedService;
+  onClose: () => void;
+  onShowPolicy: () => void;
+}) {
   const [step, setStep] = useState<ModalStep>('payment');
-  const [paymentData, setPaymentData] = useState<{ paymentCode: string; amount: number; qrUrl?: string; instructions: string } | null>(null);
+  const [paymentData, setPaymentData] = useState<{
+    paymentCode: string;
+    amount: number;
+    qrUrl?: string;
+    instructions: string;
+    bankAccount?: string;
+    bankName?: string;
+  } | null>(null);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -135,8 +214,8 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [countdown, setCountdown] = useState(300); // 5 minutes = 300 seconds
 
-  const needsBirthInfo = ['chiem-tinh-co-ban', 'chiem-tinh-chuyen-sau'].includes(service.id);
-  const needPayment = !NO_PAYMENT_SERVICES.includes(service.id);
+  const needsBirthInfo = ['chiem-tinh-co-ban', 'chiem-tinh-chuyen-sau', 'chiem-tinh-prasna'].includes(service.id);
+  const needPayment = !NO_PAYMENT_SERVICES.includes(service.id) && service.price !== 'Liên hệ';
 
   // Countdown timer
   useEffect(() => {
@@ -203,12 +282,11 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
             customerEmail: '',
             customerPhone: '',
           });
-          console.log('[DEBUG] createPayment result:', result);
           setPaymentData(result);
-          setCountdown(300); // Reset timer when new payment is created
+          setCountdown(300);
         }
       } catch {
-        setPaymentError('Không thể tạo thanh toán. Vui lòng thử lại.');
+        setPaymentError('Không thể tạo mã thanh toán tự động. Bạn vẫn có thể điền thông tin để được hỗ trợ trực tiếp.');
       } finally {
         setIsCreatingPayment(false);
       }
@@ -245,268 +323,298 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
       });
       setStep('success');
     } catch {
-      alert('Không thể gửi. Vui lòng thử lại.');
+      alert('Không thể gửi thông tin. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleClose = () => {
-    setPaymentData(null);
-    onClose();
+  const handleCopyCode = () => {
+    if (paymentData?.paymentCode) {
+      navigator.clipboard.writeText(paymentData.paymentCode);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={handleClose}>
+    <div
+      className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+      onClick={onClose}
+    >
       <div
-        className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto border border-votive-border shadow-2xl animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white border-b border-stone-200 p-6 flex items-center justify-between">
+        {/* Modal Header */}
+        <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-votive-border p-5 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">{service.icon}</span>
+            <div className="w-11 h-11 rounded-xl bg-votive-surface border border-votive-border flex items-center justify-center shrink-0">
+              {getServiceIcon(service.id)}
+            </div>
             <div>
-              <h3 className="text-xl font-serif font-bold text-stone-800">{service.title}</h3>
-              {service.price && (
-                <p className="text-gold-600 font-medium">
-                  {service.price === 'Liên hệ' ? 'Liên hệ báo giá' : `${service.price} VNĐ`}
-                </p>
-              )}
+              <h3 className="text-lg font-serif font-bold text-votive-text leading-snug">
+                {service.title}
+              </h3>
+              <p className="text-sm font-semibold text-votive-red mt-0.5">
+                {service.price === 'Liên hệ' ? 'Liên hệ báo giá' : `${service.price} VNĐ`}
+              </p>
             </div>
           </div>
-          <button onClick={handleClose} className="p-2 hover:bg-stone-100 rounded-full transition-colors">
-            <svg className="w-6 h-6 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button
+            onClick={onClose}
+            className="p-2 text-votive-muted hover:text-votive-red rounded-xl hover:bg-votive-surface transition-colors"
+            aria-label="Đóng"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6">
-          {/* Step: Payment (for paid services) */}
+          {/* Step 1: Payment with Sepay VietQR */}
           {step === 'payment' && needPayment && (
             <div className="text-center">
               {isCreatingPayment ? (
-                <div className="py-8">
-                  <div className="w-16 h-16 border-4 border-gold-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-stone-600">Đang tạo mã thanh toán...</p>
+                <div className="py-12">
+                  <div className="w-12 h-12 border-3 border-votive-red border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  <p className="text-sm text-votive-muted font-medium">Đang tạo cổng thanh toán bảo mật VietQR...</p>
                 </div>
               ) : paymentError ? (
                 <div className="py-8">
-                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-3xl">❌</span>
+                  <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <AlertCircle className="w-6 h-6" />
                   </div>
-                  <p className="text-red-600 mb-4">{paymentError}</p>
-                  <button onClick={() => window.location.reload()} className="px-6 py-2 bg-gold-600 text-white rounded-lg">
-                    Thử lại
+                  <p className="text-sm text-red-700 mb-4">{paymentError}</p>
+                  <button
+                    onClick={() => setStep('form')}
+                    className="btn-primary text-sm px-6 py-2.5"
+                  >
+                    Bỏ qua và điền thông tin đặt lịch
                   </button>
                 </div>
               ) : paymentData ? (
                 <>
-                  <h4 className="text-lg font-semibold text-stone-800 mb-4">Quét mã QR để thanh toán</h4>
-
-                  <div className="bg-stone-50 rounded-xl p-4 mb-4">
-                    <p className="text-sm text-stone-500 mb-1">Số tiền cần thanh toán</p>
-                    <p className="text-2xl font-bold text-gold-600">
-                      {paymentData.amount.toLocaleString('vi-VN')} VNĐ
-                    </p>
+                  <div className="mb-4">
+                    <span className="badge-parchment text-xs mb-2 inline-flex items-center gap-1.5">
+                      <QrCode className="w-3.5 h-3.5 text-votive-red" />
+                      Thanh Toán Nhanh Qua VietQR
+                    </span>
+                    <h4 className="text-base font-semibold text-votive-text">
+                      Quét mã để kích hoạt lịch tư vấn tự động
+                    </h4>
                   </div>
 
-                  <div className="bg-amber-50 rounded-xl p-4 mb-4">
-                    <p className="text-sm text-stone-500 mb-1">Nội dung chuyển khoản</p>
-                    <p className="text-lg font-mono font-bold text-stone-800">
-                      {paymentData.paymentCode}
-                    </p>
+                  {/* Payment Details Card */}
+                  <div className="bg-votive-surface/70 border border-votive-border rounded-xl p-4 mb-4 text-left space-y-2.5">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-votive-muted">Số tiền thanh toán:</span>
+                      <span className="font-bold text-base text-votive-red">
+                        {paymentData.amount.toLocaleString('vi-VN')} VNĐ
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-votive-muted">Nội dung chuyển khoản:</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-bold text-votive-text bg-white px-2 py-0.5 rounded border border-votive-border">
+                          {paymentData.paymentCode}
+                        </span>
+                        <button
+                          onClick={handleCopyCode}
+                          className="p-1 text-votive-muted hover:text-votive-red transition-colors"
+                          title="Sao chép mã"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    {copiedCode && (
+                      <p className="text-[11px] text-green-700 text-right">Đã sao chép mã thành công!</p>
+                    )}
                   </div>
 
                   {/* Countdown Timer */}
-                  <div className={`mb-4 p-4 rounded-xl text-center ${countdown <= 60 ? 'bg-red-50' : 'bg-blue-50'}`}>
-                    <p className="text-sm text-stone-500 mb-1">Mã QR hết hạn sau</p>
-                    <p className={`text-3xl font-mono font-bold ${countdown <= 60 ? 'text-red-600' : 'text-blue-600'}`}>
-                      {formatTime(countdown)}
-                    </p>
+                  <div
+                    className={`mb-4 py-2 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-2 ${
+                      countdown <= 60
+                        ? 'bg-red-50 text-red-700 border border-red-200'
+                        : 'bg-amber-50 text-amber-800 border border-amber-200'
+                    }`}
+                  >
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>Mã thanh toán có hiệu lực trong:</span>
+                    <span className="font-mono font-bold text-sm">{formatTime(countdown)}</span>
                   </div>
 
-                  {/* QR Code Inline */}
+                  {/* VietQR Code Frame */}
                   {paymentData.qrUrl && (
-                    <div className="bg-white border-2 border-stone-200 rounded-xl p-4 mb-4 inline-block">
+                    <div className="bg-white border border-votive-border rounded-2xl p-4 shadow-sm inline-block mb-4">
                       <img
                         src={paymentData.qrUrl}
-                        alt="QR Code"
-                        className="w-64 h-64 object-contain"
-                        onError={(e) => {
-                          // Fallback: show link if image fails
-                          (e.target as HTMLImageElement).style.display = 'none';
-                          const fallback = document.getElementById('qr-fallback');
-                          if (fallback) fallback.style.display = 'block';
-                        }}
+                        alt="VietQR Code"
+                        className="w-56 h-56 object-contain mx-auto"
                       />
-                      <div id="qr-fallback" className="hidden text-center p-4">
-                        <a
-                          href={paymentData.qrUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gold-600 hover:text-gold-700 underline"
-                        >
-                          Mở QR trong tab mới
-                        </a>
-                      </div>
+                      <a
+                        href={paymentData.qrUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-votive-red hover:underline mt-2"
+                      >
+                        <span>Mở mã QR trong tab mới</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
                     </div>
                   )}
 
-                  <p className="text-sm text-stone-500 mb-4">
-                    {countdown > 0
-                      ? 'Đang chờ thanh toán... Vui lòng không đóng cửa sổ này.'
-                      : 'Mã QR đã hết hạn. Vui lòng đóng modal và thử lại.'}
+                  <p className="text-xs text-votive-muted mb-4 leading-relaxed">
+                    Hệ thống sẽ tự động phát hiện chuyển khoản và chuyển bạn sang bước điền thông tin sau 1-3 giây.
                   </p>
+
+                  <div className="pt-2 border-t border-votive-border flex items-center justify-between text-xs">
+                    <span className="text-votive-muted">Chưa thể quét QR lúc này?</span>
+                    <button
+                      onClick={() => setStep('form')}
+                      className="text-votive-red hover:underline font-medium"
+                    >
+                      Điền thông tin trước
+                    </button>
+                  </div>
                 </>
               ) : null}
             </div>
           )}
 
-          {/* Step: Confirmed - Payment success */}
+          {/* Confirmed Animation */}
           {step === 'confirmed' && (
-            <div className="text-center py-8">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
+            <div className="text-center py-10">
+              <div className="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200 animate-scale-in">
+                <Check className="w-8 h-8" />
               </div>
-              <h4 className="text-xl font-semibold text-green-600 mb-2">Thanh toán thành công!</h4>
-              <p className="text-stone-600">Đang chuyển sang điền thông tin...</p>
+              <h4 className="text-xl font-serif font-bold text-votive-text mb-1">
+                Thanh toán đã được ghi nhận!
+              </h4>
+              <p className="text-sm text-votive-muted">Đang chuyển sang phần hoàn thiện thông tin lá số...</p>
             </div>
           )}
 
-          {/* Step: Form */}
+          {/* Step 2: Information Form */}
           {step === 'form' && (
             <>
               {needPayment && (
-                <div className="mb-4 p-3 bg-green-50 rounded-lg flex items-center gap-2">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-green-700 text-sm font-medium">Đã thanh toán thành công</span>
+                <div className="mb-5 p-3 bg-green-50/80 border border-green-200 rounded-xl flex items-center gap-2.5 text-xs text-green-800">
+                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                  <span>Bước 2/2: Vui lòng cung cấp thông tin để chuyên gia chuẩn bị phân tích.</span>
                 </div>
               )}
 
-              <div className="mb-6">
-                <p className="text-stone-600 mb-4">{service.description}</p>
-                <div className="grid grid-cols-4 gap-3 mb-4">
-                  {[
-                    { icon: '🧘', label: 'Yoga' },
-                    { icon: '🌿', label: 'Ayurveda' },
-                    { icon: '💃', label: 'Múa Ấn Độ' },
-                    { icon: '🪔', label: 'Diya' },
-                  ].map((item) => (
-                    <div key={item.label} className="text-center p-3 bg-stone-50 rounded-lg">
-                      <span className="text-2xl block mb-1">{item.icon}</span>
-                      <span className="text-xs text-stone-500">{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               <form onSubmit={handleFormSubmit} className="space-y-4">
-                <h4 className="font-medium text-stone-800">Thông tin của bạn</h4>
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-votive-text">Họ và tên của bạn *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Nguyễn Văn A"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-votive-border bg-white focus:ring-2 focus:ring-votive-red/30 focus:border-votive-red outline-none text-sm"
+                  />
+                </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <input
-                      type="text"
-                      required
-                      placeholder="Họ và tên *"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
-                    />
-                  </div>
-                  <div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold text-votive-text">Email nhận bài *</label>
                     <input
                       type="email"
                       required
-                      placeholder="Email *"
+                      placeholder="ban@email.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-votive-border bg-white focus:ring-2 focus:ring-votive-red/30 focus:border-votive-red outline-none text-sm"
                     />
                   </div>
-                  <div>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold text-votive-text">Số điện thoại / Zalo *</label>
                     <input
                       type="tel"
                       required
-                      placeholder="Số điện thoại *"
+                      placeholder="0912 345 678"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-votive-border bg-white focus:ring-2 focus:ring-votive-red/30 focus:border-votive-red outline-none text-sm"
                     />
                   </div>
                 </div>
 
+                {/* Birth details required for astrology */}
                 {needsBirthInfo && (
-                  <div className="bg-amber-50 rounded-xl p-4 space-y-4">
-                    <h5 className="font-medium text-stone-700 flex items-center gap-2">
-                      <span>📋</span> Thông tin sinh nhật để luận giải
-                    </h5>
-                    <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-votive-surface/70 border border-votive-border rounded-xl p-4 space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-votive-red">
+                      <DiyaIcon size={16} />
+                      <span>Thông tin sinh nhật để lập bản đồ sao chính xác</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                       <div>
+                        <label className="block text-[11px] text-votive-muted mb-1">Ngày sinh *</label>
                         <input
                           type="date"
                           required
-                          placeholder="Ngày sinh *"
                           value={formData.birthDate}
                           onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                          className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
+                          className="w-full px-3 py-2 rounded-lg border border-votive-border bg-white text-xs outline-none focus:border-votive-red"
                         />
                       </div>
                       <div>
+                        <label className="block text-[11px] text-votive-muted mb-1">Giờ sinh (Giấy khai sinh)</label>
                         <input
                           type="time"
-                          placeholder="Giờ sinh"
                           value={formData.birthTime}
                           onChange={(e) => setFormData({ ...formData, birthTime: e.target.value })}
-                          className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
+                          className="w-full px-3 py-2 rounded-lg border border-votive-border bg-white text-xs outline-none focus:border-votive-red"
                         />
                       </div>
                       <div>
+                        <label className="block text-[11px] text-votive-muted mb-1">Nơi sinh (Tỉnh / Thành)</label>
                         <input
                           type="text"
-                          placeholder="Nơi sinh"
+                          placeholder="Hà Nội, TP.HCM..."
                           value={formData.birthPlace}
                           onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
-                          className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
+                          className="w-full px-3 py-2 rounded-lg border border-votive-border bg-white text-xs outline-none focus:border-votive-red"
                         />
                       </div>
                     </div>
                   </div>
                 )}
 
-                <div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-votive-text">Nội dung hoặc câu hỏi cần tập trung</label>
                   <textarea
-                    placeholder="Nội dung cần tư vấn (tùy chọn)"
+                    placeholder="Mô tả bối cảnh hoặc câu hỏi cần chuyên gia tư vấn kỹ càng..."
                     rows={3}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none resize-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-votive-border bg-white focus:ring-2 focus:ring-votive-red/30 focus:border-votive-red outline-none text-sm resize-none"
                   />
                 </div>
 
-                <div className="bg-stone-50 rounded-lg p-4">
-                  <label className="flex items-start gap-3 cursor-pointer">
+                {/* Consent to Terms & Ethics */}
+                <div className="p-3 bg-white border border-votive-border rounded-xl">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={acceptedTerms}
                       onChange={(e) => setAcceptedTerms(e.target.checked)}
-                      className="mt-1 w-5 h-5 rounded border-stone-300 text-gold-600 focus:ring-gold-500 cursor-pointer"
+                      className="mt-0.5 w-4 h-4 rounded text-votive-red focus:ring-votive-red"
                     />
-                    <span className="text-sm text-stone-600">
+                    <span className="text-xs text-votive-muted leading-relaxed">
                       Tôi đã đọc và đồng ý với{' '}
                       <button
                         type="button"
                         onClick={onShowPolicy}
-                        className="text-gold-600 hover:text-gold-700 underline font-medium"
+                        className="text-votive-red hover:underline font-medium"
                       >
-                        Chính sách và Điều khoản dịch vụ
+                        Chính sách & Điều khoản dịch vụ
                       </button>{' '}
-                      của Votive Academy
+                      của Votive Academy.
                     </span>
                   </label>
                 </div>
@@ -514,30 +622,31 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
                 <button
                   type="submit"
                   disabled={isSubmitting || !acceptedTerms}
-                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary w-full py-3.5 text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Đang gửi...' : 'Xác nhận đặt dịch vụ'}
+                  {isSubmitting ? 'Đang gửi hồ sơ...' : 'Xác nhận đặt lịch tư vấn'}
                 </button>
               </form>
             </>
           )}
 
-          {/* Step: Success */}
+          {/* Step 3: Success */}
           {step === 'success' && (
             <div className="text-center py-8">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+              <div className="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200">
+                <Check className="w-8 h-8" />
               </div>
-              <h4 className="text-xl font-semibold text-stone-800 mb-2">Đặt dịch vụ thành công!</h4>
-              <p className="text-stone-600 mb-4">
-                {needPayment
-                  ? 'Thanh toán đã được xác nhận. Chúng tôi sẽ liên hệ với bạn trong 24 giờ.'
-                  : 'Chúng tôi sẽ liên hệ với bạn trong 24 giờ để xác nhận và báo giá.'}
+              <h4 className="text-xl font-serif font-bold text-votive-text mb-2">
+                Hồ sơ đã được gửi thành công!
+              </h4>
+              <p className="text-sm text-votive-muted mb-6 leading-relaxed max-w-sm mx-auto">
+                Chuyên viên tư vấn của Votive Academy sẽ chủ động liên hệ với bạn trong vòng 24 giờ qua Zalo/Email để xác nhận thời gian chi tiết.
               </p>
-              <button onClick={handleClose} className="px-6 py-2 bg-gold-600 hover:bg-gold-700 text-white rounded-lg font-medium">
-                Đóng
+              <button
+                onClick={onClose}
+                className="btn-primary text-sm px-8 py-2.5"
+              >
+                Hoàn tất
               </button>
             </div>
           )}
@@ -549,78 +658,64 @@ function ServiceModal({ service, onClose, onShowPolicy }: { service: Service; on
 
 function PolicyModal({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto"
+      onClick={onClose}
+    >
       <div
-        className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto"
+        className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto border border-votive-border shadow-2xl p-6 sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white border-b border-stone-200 p-6 flex items-center justify-between">
-          <h3 className="text-xl font-serif font-bold text-stone-800">Chính sách và Điều khoản dịch vụ</h3>
-          <button onClick={onClose} className="p-2 hover:bg-stone-100 rounded-full transition-colors">
-            <svg className="w-6 h-6 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        <div className="flex items-center justify-between pb-4 border-b border-votive-border mb-6">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-votive-red" />
+            <h3 className="text-xl font-serif font-bold text-votive-text">
+              Chính sách & Điều khoản Dịch vụ
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 text-votive-muted hover:text-votive-red transition-colors"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6 text-sm text-stone-600">
+        <div className="space-y-6 text-sm text-votive-text/90 leading-relaxed font-sans">
           <section>
-            <h4 className="font-semibold text-stone-800 mb-2">1. Tuyên bố miễn trừ trách nhiệm (Disclaimer)</h4>
-            <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Tính chất dịch vụ:</strong> Mọi phân tích, diễn giải và dự đoán dựa trên Hệ thống Chiêm tinh học Vệ Đà chỉ mang tính chất hướng dẫn, tham khảo và hỗ trợ tinh thần.</li>
-              <li><strong>Không thay thế chuyên gia:</strong> Thông tin không có giá trị thay thế cho lời khuyên chuyên môn về pháp lý, tài chính, y tế hoặc tâm lý.</li>
-              <li><strong>Trách nhiệm cá nhân:</strong> Quyết định cuối cùng luôn thuộc về tự do ý chí và trách nhiệm cá nhân 100% của khách hàng.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-stone-800 mb-2">2. Chính sách bảo mật</h4>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Chúng tôi chỉ thu thập thông tin cần thiết: Họ tên, Ngày sinh, Giờ sinh, Nơi sinh, Email.</li>
-              <li>Mọi thông tin cá nhân và nội dung trao đổi được giữ bí mật tuyệt đối.</li>
-              <li>File ghi âm/ghi hình sẽ tự động xóa sau <strong>30 ngày</strong> kể từ ngày bàn giao.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-stone-800 mb-2">3. Chính sách thanh toán & Không hoàn tiền</h4>
-            <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Không hoàn tiền:</strong> Tất cả các khoản thanh toán là <strong>cuối cùng và không được hoàn lại</strong> dưới bất kỳ lý do gì.</li>
-              <li><strong>Dời lịch:</strong> Thông báo trước ít nhất <strong>24 giờ</strong>, được hỗ trợ dời tối đa <strong>01 lần</strong>.</li>
-              <li><strong>Vắng mặt:</strong> Quá 15 phút không thông báo = mất quyền hoàn tiền và dời lịch.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-stone-800 mb-2">4. Quyền sở hữu trí tuệ</h4>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Tài liệu, báo cáo và file ghi âm là tài sản của Votive Academy.</li>
-              <li>Nghiêm cấm sao chép, phát tán công khai hoặc thương mại hóa nếu chưa có sự đồng ý bằng văn bản.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-stone-800 mb-2">5. Quy tắc ứng xử</h4>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Tôn trọng, cởi mở trong buổi tư vấn.</li>
-              <li>Nghiêm cấm hành vi thù địch, xúc phạm chuyên gia.</li>
-              <li>Không yêu cầu giải đoán lá số bên thứ ba khi chưa có sự đồng ý.</li>
-            </ul>
-          </section>
-
-          <div className="pt-4 border-t border-stone-200 text-center">
-            <p className="text-stone-500 italic">
-              Cảm ơn bạn đã tin tưởng Votive Academy!
+            <h4 className="font-serif font-semibold text-base text-votive-red mb-2">
+              1. Tuyên bố miễn trừ trách nhiệm (Disclaimer)
+            </h4>
+            <p className="text-xs text-votive-muted mb-2">
+              Mọi nội dung phân tích dựa trên Hệ thống Chiêm tinh học Vệ Đà (Jyotish) chỉ mang tính chất định hướng nhận thức và hỗ trợ tinh thần. Thông tin không thay thế lời khuyên y tế, pháp lý, đầu tư tài chính chuyên nghiệp. Mọi quyết định luôn thuộc về tự do ý chí và trách nhiệm cá nhân của khách hàng.
             </p>
-          </div>
+          </section>
+
+          <section>
+            <h4 className="font-serif font-semibold text-base text-votive-red mb-2">
+              2. Bảo mật thông tin tuyệt đối
+            </h4>
+            <p className="text-xs text-votive-muted mb-2">
+              Thông tin sinh nhật, lá số và nội dung buổi tư vấn được giữ bí mật 100%. File ghi âm trao đổi trực tiếp sẽ được lưu trữ bảo mật và cấp quyền truy cập riêng cho khách hàng.
+            </p>
+          </section>
+
+          <section>
+            <h4 className="font-serif font-semibold text-base text-votive-red mb-2">
+              3. Chính sách thanh toán & Dời lịch
+            </h4>
+            <p className="text-xs text-votive-muted mb-2">
+              Khách hàng có thể thông báo dời lịch tư vấn trước tối thiểu 24 giờ. Các khoản phí tư vấn đã thực hiện dịch vụ hoặc vắng mặt quá 15 phút không báo trước sẽ không áp dụng hoàn tiền.
+            </p>
+          </section>
         </div>
 
-        <div className="sticky bottom-0 bg-white border-t border-stone-200 p-4">
+        <div className="mt-8 pt-4 border-t border-votive-border">
           <button
             onClick={onClose}
-            className="w-full py-3 bg-gold-600 hover:bg-gold-700 text-white rounded-lg font-medium transition-colors"
+            className="btn-primary w-full py-3 text-sm font-medium"
           >
-            Đã hiểu
+            Tôi đã hiểu và đồng ý
           </button>
         </div>
       </div>
@@ -629,74 +724,160 @@ function PolicyModal({ onClose }: { onClose: () => void }) {
 }
 
 export function Services() {
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<ExtendedService | null>(null);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<ServiceCategory>('all');
+
+  const filteredServices = services.filter((s) => {
+    if (activeCategory === 'all') return true;
+    return s.category === activeCategory;
+  });
 
   return (
     <>
-      <section id="services" className="section-padding bg-white">
+      <section id="services" className="section-padding relative">
         <div className="container-width">
-          <div className="text-center mb-16">
-            <span className="text-gold-600 font-medium mb-2 block">Dịch vụ của chúng tôi</span>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-stone-800 mb-4">
-              Giải pháp tâm linh toàn diện
+          {/* Section Header */}
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="badge-parchment mb-3">
+              <DiyaIcon size={14} className="text-votive-red" />
+              Tư Vấn Chuyên Sâu 1-1
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-votive-text mb-4 tracking-tight">
+              Dịch Vụ Luận Giải & Cố Vấn
             </h2>
-            <p className="text-stone-600 max-w-2xl mx-auto">
-              Đa dạng dịch vụ tâm linh, được thực hiện bởi đội ngũ chuyên gia
-              với nhiều năm kinh nghiệm và đạo đức nghề nghiệp.
+            <p className="text-sm sm:text-base text-votive-muted leading-relaxed font-sans">
+              Toàn bộ các gói dịch vụ được hướng dẫn bởi tri thức cổ truyền Vệ Đà, đảm bảo tính chuẩn xác, tận tâm và tuyệt đối tôn trọng tự do ý chí.
             </p>
+
+            {/* Category Filter Tabs */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
+              {[
+                { id: 'all', label: 'Tất cả dịch vụ (8)' },
+                { id: 'jyotish', label: 'Chiêm Tinh Vệ Đà (3)' },
+                { id: 'tarot-iching', label: 'Tarot & Kinh Dịch (4)' },
+                { id: 'special', label: 'Nghi Lễ & Cố Vấn (1)' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveCategory(tab.id as ServiceCategory)}
+                  className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+                    activeCategory === tab.id
+                      ? 'bg-votive-red text-white shadow-sm'
+                      : 'bg-white/80 border border-votive-border text-votive-muted hover:text-votive-text hover:border-votive-sand'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service) => (
+          {/* Service Cards Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {filteredServices.map((service) => (
               <div
                 key={service.id}
-                className="group bg-stone-50 rounded-2xl p-6 hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-gold-200"
+                className={`glass-card glass-card-hover rounded-2xl p-6 sm:p-7 flex flex-col justify-between relative ${
+                  service.isPopular
+                    ? 'border-2 border-votive-red/50 shadow-md ring-1 ring-votive-red/20'
+                    : ''
+                }`}
               >
-                <div className="flex items-start justify-between mb-4">
-                  <span className="text-5xl">{service.icon}</span>
-                  {service.price && (
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gold-600">
-                        {service.price === 'Liên hệ' ? 'Liên hệ' : service.price}
-                      </p>
-                      {service.price !== 'Liên hệ' && (
-                        <p className="text-xs text-stone-500">VNĐ</p>
-                      )}
+                {/* Popular / Best value badge */}
+                {service.badge && (
+                  <div className="absolute -top-3 right-6">
+                    <span
+                      className={`text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm ${
+                        service.isPopular
+                          ? 'bg-votive-red text-white'
+                          : 'bg-votive-surface border border-votive-border text-votive-red'
+                      }`}
+                    >
+                      {service.badge}
+                    </span>
+                  </div>
+                )}
+
+                <div>
+                  {/* Icon & Price */}
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="w-14 h-14 rounded-2xl bg-votive-surface border border-votive-border flex items-center justify-center p-2.5 shadow-sm">
+                      {getServiceIcon(service.id)}
                     </div>
-                  )}
+                    <div className="text-right">
+                      <div className="text-2xl font-serif font-bold text-votive-red tracking-tight">
+                        {service.price === 'Liên hệ' ? (
+                          <span>Liên hệ</span>
+                        ) : (
+                          <>
+                            {service.price}
+                            <span className="text-xs font-sans font-normal text-votive-muted ml-1">VNĐ</span>
+                          </>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-votive-muted font-medium">
+                        {service.priceLabel}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Title & Description */}
+                  <h3 className="text-xl font-serif font-bold text-votive-text mb-2.5 leading-snug">
+                    {service.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-votive-muted leading-relaxed mb-6">
+                    {service.description}
+                  </p>
+
+                  {/* Features list */}
+                  <div className="pt-4 border-t border-votive-border/60 mb-6">
+                    <ul className="space-y-2.5">
+                      {service.features.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-votive-text/80">
+                          <Check className="w-4 h-4 text-votive-red shrink-0 mt-0.5" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-                <h3 className="text-xl font-serif font-semibold text-stone-800 mb-3">
-                  {service.title}
-                </h3>
-                <p className="text-stone-600 mb-4 text-sm leading-relaxed">
-                  {service.description}
-                </p>
-                <ul className="space-y-2 mb-4">
-                  {service.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm text-stone-500">
-                      <svg className="w-4 h-4 text-gold-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+
+                {/* Card CTA button */}
                 <button
                   onClick={() => setSelectedService(service)}
-                  className="w-full py-2.5 px-4 bg-gold-600 hover:bg-gold-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  className={`w-full py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+                    service.isPopular
+                      ? 'btn-primary shadow-sm'
+                      : 'bg-votive-surface border border-votive-border text-votive-text hover:bg-votive-red hover:text-white hover:border-votive-red'
+                  }`}
                 >
-                  Đặt dịch vụ
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
+                  <span>{service.price === 'Liên hệ' ? 'Liên hệ đặt lịch' : 'Đặt lịch & Thanh toán'}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             ))}
           </div>
+
+          {/* Ethics guarantee footer bar */}
+          <div className="mt-14 p-5 rounded-2xl bg-white/70 border border-votive-border/80 backdrop-blur-sm max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-6 h-6 text-votive-red shrink-0" />
+              <p className="text-xs text-votive-muted leading-snug">
+                Mọi buổi tư vấn đều được bảo mật 100% và tuân thủ chặt chẽ <strong>Bộ Quy Tắc Đạo Đức Nghề Nghiệp</strong> của Votive Academy.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowPolicyModal(true)}
+              className="text-xs font-semibold text-votive-red hover:underline whitespace-nowrap"
+            >
+              Xem chính sách dịch vụ →
+            </button>
+          </div>
         </div>
       </section>
 
+      {/* Booking / Payment Modal */}
       {selectedService && (
         <ServiceModal
           service={selectedService}
@@ -705,6 +886,7 @@ export function Services() {
         />
       )}
 
+      {/* Policy Modal */}
       {showPolicyModal && (
         <PolicyModal onClose={() => setShowPolicyModal(false)} />
       )}

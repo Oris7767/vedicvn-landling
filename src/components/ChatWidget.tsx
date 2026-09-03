@@ -1,5 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useChat } from '../contexts/ChatContext';
+import {
+  X,
+  Send,
+  Sparkles,
+  QrCode,
+  BookOpen,
+  Calendar,
+  CreditCard,
+  Compass,
+} from 'lucide-react';
+import { DiyaIcon } from './icons/VedicIcons';
 
 const API_URL = import.meta.env.VITE_VA_API_URL || 'https://va.vedicvn.sbs';
 
@@ -14,6 +25,7 @@ interface QuickReply {
   id: string;
   label: string;
   value: string;
+  icon: typeof BookOpen;
 }
 
 interface PaymentInfo {
@@ -26,11 +38,30 @@ interface PaymentInfo {
 }
 
 const QUICK_REPLIES: QuickReply[] = [
-  { id: 'courses', label: '📚 Khóa học chiêm tinh', value: 'Tôi muốn tư vấn khóa học chiêm tinh Vệ Đà' },
-  { id: 'services', label: '⭐ Dịch vụ luận giải', value: 'Tôi muốn biết thêm về dịch vụ luận giải' },
-  { id: 'booking', label: '📅 Đặt lịch tư vấn', value: 'Tôi muốn đặt lịch tư vấn với chuyên gia' },
-  { id: 'price', label: '💰 Hỏi học phí', value: 'Cho tôi biết học phí các khóa học' },
-  { id: 'schedule', label: '📆 Lịch khai giảng', value: 'Khi nào có lớp mới khai giảng?' },
+  {
+    id: 'courses',
+    label: 'Khóa học chiêm tinh',
+    value: 'Tôi muốn tư vấn về các khóa học Chiêm Tinh Vệ Đà',
+    icon: BookOpen,
+  },
+  {
+    id: 'services',
+    label: 'Gói tư vấn lá số',
+    value: 'Cho tôi biết chi tiết các gói luận giải lá số',
+    icon: Compass,
+  },
+  {
+    id: 'booking',
+    label: 'Đặt lịch với Trâm Phạm',
+    value: 'Tôi muốn đặt lịch tư vấn 1-1 với Founder Trâm Phạm',
+    icon: Calendar,
+  },
+  {
+    id: 'price',
+    label: 'Học phí & Lịch khai giảng',
+    value: 'Khi nào có lớp mới khai giảng và học phí ra sao?',
+    icon: CreditCard,
+  },
 ];
 
 function formatTime(date: Date): string {
@@ -64,17 +95,17 @@ export function ChatWidget() {
       const greeting: Message = {
         id: 'greeting',
         role: 'assistant',
-        content: 'Xin chào! Mình là Carmen, trợ lý ảo của Votive Academy 🌟\n\nMình có thể giúp bạn:\n• Tư vấn khóa học chiêm tinh Vệ Đà\n• Giới thiệu dịch vụ luận giải\n• Đặt lịch với chuyên gia Trâm Phạm\n• Trả lời thắc mắc về học phí và lịch khai giảng\n\nBạn cần hỗ trợ gì hôm nay?',
+        content:
+          'Namaste! Mình là Carmen, trợ lý học vụ của Votive Academy (VedicVN).\n\nMình có thể hỗ trợ bạn:\n• Tư vấn lộ trình học Chiêm Tinh Vệ Đà (Jyotish)\n• Lựa chọn gói tư vấn lá số phù hợp\n• Hướng dẫn chuẩn bị giờ sinh chính xác\n• Đặt lịch hẹn với Founder Trâm Phạm\n\nBạn đang quan tâm đến nội dung nào hôm nay?',
         timestamp: new Date(),
       };
       setMessages([greeting]);
     }
-    
-    // Reset khi đóng chat
+
     if (!isOpen) {
       hasInitializedRef.current = false;
     }
-  }, [isOpen]);
+  }, [isOpen, messages.length]);
 
   // Auto-send pending message
   useEffect(() => {
@@ -103,55 +134,55 @@ export function ChatWidget() {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    setMessages((prev) => [...prev, userMessage]);
+    if (!text) setInput('');
     setIsLoading(true);
     setIsTyping(true);
 
     try {
-      const body: Record<string, string | null> = {
-        message: messageText,
-        session_id: sessionId,
-        source: 'landing_page',
-      };
-
-      const resp = await fetch(`${API_URL}/chat`, {
+      const response = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: messageText,
+          sessionId: sessionId,
+          context: 'landing_page',
+        }),
       });
 
-      if (!resp.ok) {
-        const errorText = await resp.text();
-        throw new Error(`HTTP ${resp.status}: ${errorText || resp.statusText}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
 
-      const data = await resp.json();
+      const data = await response.json();
 
-      setSessionId(data.session_id ?? sessionId);
+      if (data.sessionId && !sessionId) {
+        setSessionId(data.sessionId);
+      }
 
-      // Capture payment info if exists
-      if (data.payment_info) {
-        setPaymentInfo(data.payment_info);
+      if (data.payment) {
+        setPaymentInfo(data.payment);
       }
 
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content: data.reply || 'Cảm ơn bạn đã tin tưởng Votive Academy!',
+        content: data.reply || data.message || 'Cảm ơn bạn đã nhắn tin. Chuyên viên sẽ sớm hỗ trợ bạn chi tiết hơn.',
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (err) {
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch {
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: 'Xin lỗi, mình đang gặp sự cố kết nối. Bạn vui lòng thử lại sau, hoặc liên hệ trực tiếp qua hotline 0385 448 747 nhé! 🙏',
+        content:
+          'Hiện hệ thống trợ lý đang bận hoặc bạn có thể liên hệ trực tiếp qua Hotline/Zalo: 0868 888 688 để được hỗ trợ tức thì.',
         timestamp: new Date(),
       };
-
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
       setIsTyping(false);
@@ -166,107 +197,88 @@ export function ChatWidget() {
   };
 
   const handleQuickReply = (reply: QuickReply) => {
-    setInput('');
     sendMessage(reply.value);
-  };
-
-  const handleOpenQR = () => {
-    if (paymentInfo?.qrUrl) {
-      window.open(paymentInfo.qrUrl, '_blank');
-    }
   };
 
   const handleCopyCode = () => {
     if (paymentInfo?.paymentCode) {
       navigator.clipboard.writeText(paymentInfo.paymentCode);
+      alert('Đã sao chép mã chuyển khoản!');
     }
   };
 
-  const showQuickReplies = messages.length <= 1 && !isTyping && !isLoading;
+  const showQuickReplies = messages.length <= 2 && !isLoading;
 
   return (
     <>
-      {/* Chat Bubble */}
-      <button
-        onClick={() => isOpen ? closeChat() : openChat()}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-105 active:scale-95"
-        aria-label={isOpen ? 'Đóng chat' : 'Mở chat hỗ trợ'}
-        aria-expanded={isOpen}
-      >
-        {isOpen ? (
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        ) : (
-          <>
-            <span className="text-2xl">🪐</span>
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full" />
-          </>
-        )}
-      </button>
+      {/* Floating Toggle Button */}
+      {!isOpen && (
+        <button
+          onClick={() => openChat()}
+          className="fixed bottom-6 right-6 z-40 p-4 rounded-full bg-votive-red text-white shadow-xl hover:bg-[#8d0f0e] active:scale-95 transition-all duration-300 flex items-center gap-2 group ring-4 ring-votive-red/20"
+          aria-label="Mở khung trò chuyện hỗ trợ"
+        >
+          <DiyaIcon size={20} className="text-white animate-pulse" />
+          <span className="text-xs font-semibold pr-1 hidden sm:inline">Trợ lý Votive</span>
+        </button>
+      )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[380px] h-[620px] max-h-[calc(100vh-120px)] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-stone-200">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[580px] max-h-[85vh] rounded-3xl overflow-hidden glass-card border border-votive-border shadow-2xl flex flex-col animate-fade-in font-sans">
           {/* Header */}
-          <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-4 text-white flex-shrink-0">
+          <div className="bg-gradient-to-r from-votive-red via-[#8d0f0e] to-[#700b0a] p-4 text-white flex items-center justify-between shrink-0 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <span className="text-3xl">🪐</span>
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-amber-500 rounded-full" />
+              <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
+                <DiyaIcon size={18} className="text-votive-sand" />
               </div>
               <div>
-                <h3 className="font-bold text-lg leading-tight">Carmen</h3>
-                <p className="text-amber-100 text-xs mt-0.5">Trợ lý ảo Votive Academy</p>
-                <p className="text-amber-200 text-[10px] mt-0.5 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                  Đang hoạt động
-                </p>
+                <h3 className="font-serif font-bold text-sm tracking-tight flex items-center gap-1.5">
+                  Carmen · Trợ Lý Học Vụ
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                </h3>
+                <p className="text-[11px] text-votive-sand/90">Học Viện Votive & VedicVN</p>
               </div>
             </div>
+            <button
+              onClick={closeChat}
+              className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label="Đóng khung chat"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 bg-stone-50/50 space-y-3">
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-votive-bg/50">
             {messages.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div
+                key={msg.id}
+                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+              >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                  className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-br-md'
-                      : 'bg-white text-stone-700 shadow-sm rounded-bl-md border border-stone-100'
+                      ? 'bg-votive-red text-white rounded-br-xs shadow-sm'
+                      : 'bg-white text-votive-text rounded-bl-xs border border-votive-border shadow-xs'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                  <p
-                    className={`text-[10px] mt-1.5 text-right ${
-                      msg.role === 'user' ? 'text-amber-100' : 'text-stone-400'
-                    }`}
-                  >
-                    {formatTime(msg.timestamp)}
-                  </p>
+                  <p className="whitespace-pre-line">{msg.content}</p>
                 </div>
+                <span className="text-[10px] text-votive-muted px-1 mt-1">
+                  {formatTime(msg.timestamp)}
+                </span>
               </div>
             ))}
 
-            {/* Typing indicator */}
+            {/* Typing Indicator */}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-stone-100">
+                <div className="bg-white rounded-2xl rounded-bl-xs px-4 py-3 border border-votive-border shadow-xs">
                   <div className="flex gap-1.5">
-                    <span
-                      className="w-2 h-2 bg-stone-400 rounded-full animate-bounce"
-                      style={{ animationDelay: '0ms', animationDuration: '600ms' }}
-                    />
-                    <span
-                      className="w-2 h-2 bg-stone-400 rounded-full animate-bounce"
-                      style={{ animationDelay: '150ms', animationDuration: '600ms' }}
-                    />
-                    <span
-                      className="w-2 h-2 bg-stone-400 rounded-full animate-bounce"
-                      style={{ animationDelay: '300ms', animationDuration: '600ms' }}
-                    />
+                    <span className="w-1.5 h-1.5 bg-votive-red/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 bg-votive-red/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 bg-votive-red/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               </div>
@@ -274,121 +286,97 @@ export function ChatWidget() {
 
             {/* Quick replies */}
             {showQuickReplies && (
-              <div className="space-y-2 pt-1">
-                <p className="text-xs text-stone-500 font-medium px-1">💡 Chọn nhanh:</p>
-                <div className="flex flex-wrap gap-2">
-                  {QUICK_REPLIES.map((reply) => (
-                    <button
-                      key={reply.id}
-                      onClick={() => handleQuickReply(reply)}
-                      disabled={isLoading}
-                      className="px-3 py-1.5 bg-white border border-amber-200 text-amber-700 rounded-full text-xs font-medium hover:bg-amber-50 hover:border-amber-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {reply.label}
-                    </button>
-                  ))}
+              <div className="space-y-2 pt-2">
+                <p className="text-[11px] font-semibold text-votive-muted flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-votive-red" />
+                  Gợi ý câu hỏi nhanh:
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  {QUICK_REPLIES.map((reply) => {
+                    const Icon = reply.icon;
+                    return (
+                      <button
+                        key={reply.id}
+                        onClick={() => handleQuickReply(reply)}
+                        disabled={isLoading}
+                        className="text-left px-3 py-2 bg-white hover:bg-votive-surface border border-votive-border rounded-xl text-xs text-votive-text font-medium flex items-center gap-2 transition-all active:scale-[0.99] disabled:opacity-50"
+                      >
+                        <Icon className="w-3.5 h-3.5 text-votive-red shrink-0" />
+                        <span>{reply.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* Payment Form */}
+            {/* In-chat Payment QR Form */}
             {paymentInfo && (
-              <div className="bg-gradient-to-br from-amber-50 to-green-50 rounded-2xl p-4 border border-amber-200 mt-4">
-                <div className="text-center mb-3">
-                  <span className="text-3xl mb-2 block">💳</span>
-                  <h4 className="font-bold text-stone-800">Thanh toán đơn hàng</h4>
-                  <p className="text-lg font-bold text-green-600 mt-1">
+              <div className="bg-votive-surface rounded-2xl p-4 border border-votive-border text-center space-y-3 mt-2">
+                <div className="w-10 h-10 rounded-full bg-votive-red/10 text-votive-red flex items-center justify-center mx-auto">
+                  <QrCode className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-serif font-bold text-xs text-votive-text">Thanh toán dịch vụ</h4>
+                  <p className="text-base font-bold text-votive-red mt-0.5">
                     {paymentInfo.amount?.toLocaleString('vi-VN')} VNĐ
                   </p>
                 </div>
-                
+
                 {paymentInfo.qrUrl && (
-                  <div className="bg-white rounded-xl p-2 mb-3">
-                    <img 
-                      src={paymentInfo.qrUrl} 
-                      alt="QR Code" 
-                      className="w-full h-auto rounded-lg"
-                    />
+                  <div className="bg-white p-2 rounded-xl border border-votive-border inline-block">
+                    <img src={paymentInfo.qrUrl} alt="VietQR" className="w-44 h-44 object-contain mx-auto" />
                   </div>
                 )}
-                
-                <div className="bg-white rounded-xl p-3 mb-3">
-                  <p className="text-xs text-stone-500 mb-1">Nội dung chuyển khoản:</p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-stone-100 px-3 py-2 rounded-lg font-mono text-sm font-bold text-stone-800 break-all">
-                      {paymentInfo.paymentCode}
-                    </code>
-                    <button
-                      onClick={handleCopyCode}
-                      className="px-3 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
-                      title="Sao chép"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
+
+                <div className="bg-white rounded-xl p-2.5 border border-votive-border text-left text-xs">
+                  <span className="text-[11px] text-votive-muted block mb-1">Mã chuyển khoản:</span>
+                  <div className="flex items-center justify-between font-mono font-bold text-votive-text">
+                    <span>{paymentInfo.paymentCode}</span>
+                    <button onClick={handleCopyCode} className="text-votive-red hover:underline text-[11px]">
+                      Sao chép
                     </button>
                   </div>
                 </div>
 
-                {paymentInfo.instructions && (
-                  <p className="text-xs text-stone-600 text-center mb-3">
-                    {paymentInfo.instructions}
-                  </p>
-                )}
-
-                <div className="flex gap-2">
-                  {paymentInfo.qrUrl && (
-                    <button
-                      onClick={handleOpenQR}
-                      className="flex-1 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium text-sm hover:shadow-lg transition-all"
-                    >
-                      📱 Mở QR thanh toán
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setPaymentInfo(null)}
-                    className="px-4 py-2.5 bg-stone-100 text-stone-600 rounded-xl font-medium text-sm hover:bg-stone-200 transition-colors"
-                  >
-                    Đóng
-                  </button>
-                </div>
-
-                <p className="text-[10px] text-stone-400 mt-3 text-center">
-                  Thanh toán sẽ được xác nhận tự động trong 1-3 phút sau khi chuyển khoản
-                </p>
+                <button
+                  onClick={() => setPaymentInfo(null)}
+                  className="text-xs text-votive-muted hover:underline"
+                >
+                  Đóng thông tin thanh toán
+                </button>
               </div>
             )}
 
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <div className="p-3 bg-white border-t border-stone-200 flex-shrink-0">
-            <div className="flex gap-2">
+          {/* Input Bar */}
+          <div className="p-3 bg-white border-t border-votive-border shrink-0">
+            <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Nhập tin nhắn..."
-                className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 text-sm transition-all"
+                placeholder="Nhập câu hỏi bạn cần giải đáp..."
+                className="flex-1 px-3.5 py-2.5 rounded-xl border border-votive-border bg-votive-surface/40 text-xs focus:outline-none focus:border-votive-red focus:bg-white transition-all"
                 disabled={isLoading}
               />
               <button
                 onClick={() => sendMessage()}
                 disabled={isLoading || !input.trim()}
-                className="px-4 py-2.5 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95"
-                aria-label="Gửi tin nhắn"
+                className="p-2.5 rounded-xl bg-votive-red text-white hover:bg-[#8d0f0e] disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
+                aria-label="Gửi"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
+                <Send className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-[10px] text-stone-400 mt-2 text-center">
-              Được hỗ trợ bởi Votive Academy · Hotline: 0385 448 747
-            </p>
+            <div className="mt-1.5 flex items-center justify-between text-[10px] text-votive-muted px-1">
+              <span>Bảo mật 100% theo chuẩn VedicVN</span>
+              <span>Hotline: 0868 888 688</span>
+            </div>
           </div>
         </div>
       )}

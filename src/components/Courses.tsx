@@ -1,73 +1,97 @@
 import { useState } from 'react';
 import { saveBooking } from '../lib/supabase';
-import { useChat } from '../contexts/ChatContext';
+import {
+  NumerologyIcon,
+  AyurvedaIcon,
+  CelestialWheelIcon,
+  FinancialCycleIcon,
+} from './icons/VedicIcons';
+import { Check, BookOpen, Clock, Award, X, Sparkles, ArrowRight } from 'lucide-react';
 
-const courses = [
-  {
-    id: 'so-hoc',
-    title: 'Số Học Vệ Đà',
-    icon: '🔢',
-    description: 'Các nhà hiền triết cổ xưa đã mã hóa ý nghĩa của các hành tinh vào 9 con số. Lớp Số học Vệ Đà khái quát hóa toàn bộ ý niệm này, cho phép bạn thấu hiểu những con số mình nhìn thấy hằng ngày.',
-    sessions: '10 buổi',
-    format: 'Online',
-    instructor: 'Trâm Phạm (Chứng chỉ Gurukul học viện top 3 Ấn Độ)',
-    highlights: [
-      'Nhập môn Số Học',
-      'Khái quát 3 khái niệm Ayurveda cho 9 con số',
-      'Ý nghĩa 9 con số và các số ghép',
-      'Tính toán và dự đoán',
-    ],
-  },
-  {
-    id: 'ayurveda',
-    title: 'Ayurveda',
-    icon: '🌿',
-    description: 'Cơ thể con người chính là một vi vũ trụ thu nhỏ, phản chiếu chính xác tỷ lệ của 5 nguyên tố hình thành nên vũ trụ. Lớp học giúp bạn thấu hiểu "bản thiết kế năng lượng" độc bản của chính mình.',
-    sessions: '8 buổi',
-    format: 'Online',
-    instructor: 'Trâm Phạm (Chứng chỉ Gurukul học viện top 3 Ấn Độ)',
-    highlights: [
-      'Nhập môn Ayurveda',
-      'Năm nguyên tố cơ bản',
-      'Thấu hiểu 3 Dosha (Vata, Pitta, Kapha)',
-      'Nhận diện thể trạng gốc và sự mất cân bằng',
-      'Thực hành kiểm soát hơi thở (Pranayama)',
-    ],
-  },
+interface Course {
+  id: string;
+  title: string;
+  icon: (size?: number) => React.ReactNode;
+  description: string;
+  sessions: string;
+  format: string;
+  instructor: string;
+  highlights: string[];
+  special?: boolean;
+}
+
+const courses: Course[] = [
   {
     id: 'chiem-tinh-co-ban',
-    title: 'Chiêm Tinh Vệ Đà Cơ Bản',
-    icon: '⭐',
-    description: 'Lộ trình chiêm tinh từ cơ bản đến nâng cao, giúp bạn hiểu về 27 chòm sao, 9 hành tinh và 12 cung hoàng đạo trong hệ thống chiêm tinh Vedic chính thống.',
-    sessions: '56 buổi (4 cấp)',
-    format: 'Online',
-    instructor: 'Trâm Phạm (Chứng chỉ Gurukul học viện top 3 Ấn Độ)',
+    title: 'Chiêm Tinh Vệ Đà Toàn Diện (4 Cấp Độ)',
+    icon: (size = 32) => <CelestialWheelIcon size={size} className="text-votive-red" />,
+    description: 'Lộ trình chuẩn hóa từ nhập môn đến phân tích chuyên sâu, thấu hiểu 27 chòm sao Nakshatra, 9 hành tinh Graha và 12 cung hoàng đạo trong hệ thống Jyotish chính thống.',
+    sessions: '56 buổi (4 cấp độ)',
+    format: 'Trực tuyến (Zoom & LMS)',
+    instructor: 'Trâm Phạm (Chứng chỉ Gurukul Ấn Độ, BAVA Member)',
+    special: true,
     highlights: [
-      'Cấp I (8 buổi): Giới thiệu chiêm tinh Vedic, 12 nhà, 12 cung hoàng đạo',
-      'Cấp II (15 buổi): 9 hành tinh, tọa độ và sức ảnh hưởng',
-      'Cấp III (15 buổi): Giải nghĩa 27 chòm sao, Đại Vận, Tiểu Vận',
-      'Cấp IV (18 buổi): Phân tích chuyên sâu và thực hành',
+      'Cấp I (8 buổi): Nền tảng triết học Vệ Đà, 12 nhà (Bhava) & 12 cung (Rashi)',
+      'Cấp II (15 buổi): 9 hành tinh (Graha), tọa độ, sức mạnh & tương tác',
+      'Cấp III (15 buổi): Giải mã 27 Nakshatra, Đại vận Vimshottari & D9 Navamsha',
+      'Cấp IV (18 buổi): Thực hành phân tích lá số thực tế & phương pháp hóa giải',
     ],
   },
   {
     id: 'chiem-tinh-tai-chinh',
-    title: 'Chiêm Tinh Tài Chính',
-    icon: '📈',
-    description: 'Sự kết hợp giữa chiêm tinh Vệ Đà cổ điển và chu kỳ tài chính hiện đại, ứng dụng nguyên lý Gann để dự đoán biến động giá và xác định thời điểm mua bán quan trọng.',
+    title: 'Chiêm Tinh Tài Chính & Chu Kỳ Gann',
+    icon: (size = 32) => <FinancialCycleIcon size={size} className="text-votive-red" />,
+    description: 'Sự giao thoa giữa chiêm tinh Vệ Đà cổ điển và chu kỳ tài chính vĩ mô, ứng dụng nguyên lý hình học W.D. Gann để nhận diện vùng đảo chiều và nhịp vận động kinh tế.',
     sessions: 'Định kỳ hằng năm',
-    format: 'Online',
-    instructor: 'Trâm Phạm (Chứng chỉ Gurukul học viện top 3 Ấn Độ)',
-    highlights: [
-      'Chu kỳ hành tinh và nhịp vận động kinh tế toàn cầu',
-      'Nhận diện vùng đảo chiều thị trường',
-      'Dự đoán xu hướng và tối ưu chiến lược đầu tư',
-      'Ứng dụng nguyên lý Gann',
-    ],
+    format: 'Chuyên đề giới hạn',
+    instructor: 'Trâm Phạm (Nghiên cứu Mundane & Financial Astrology)',
     special: true,
+    highlights: [
+      'Chu kỳ các đại hành tinh (Jupiter, Saturn, Rahu-Ketu) với thị trường tài chính',
+      'Nhận diện các vùng đảo chiều xu hướng theo chu kỳ thiên văn',
+      'Ứng dụng nguyên lý chu kỳ thời gian Gann vào phân tích thực chiến',
+      'Tư duy quản trị rủi ro trên nền tảng chu kỳ tự nhiên',
+    ],
+  },
+  {
+    id: 'so-hoc',
+    title: 'Số Học Vệ Đà (Vedic Numerology)',
+    icon: (size = 32) => <NumerologyIcon size={size} className="text-votive-red" />,
+    description: 'Các nhà hiền triết cổ xưa đã mã hóa năng lượng của 9 hành tinh vào 9 con số. Khóa học giúp bạn thấu suốt tần số rung động của họ tên và ngày sinh theo góc nhìn Vệ Đà.',
+    sessions: '10 buổi học',
+    format: 'Trực tuyến tương tác',
+    instructor: 'Trâm Phạm (Học viện Votive)',
+    highlights: [
+      'Nhập môn triết lý Số Học Vệ Đà',
+      'Mã hóa 9 hành tinh tương ứng với 9 con số nguyên bản',
+      'Ý nghĩa số chủ đạo, số linh hồn và các con số ghép',
+      'Ứng dụng dự đoán chu kỳ năm cá nhân và định hướng nghề nghiệp',
+    ],
+  },
+  {
+    id: 'ayurveda',
+    title: 'Ayurveda & Bản Thiết Kế Thân - Tâm',
+    icon: (size = 32) => <AyurvedaIcon size={size} className="text-votive-red" />,
+    description: 'Cơ thể con người là một tiểu vũ trụ phản chiếu 5 nguyên tố tự nhiên. Khóa học giúp bạn nhận diện thể trạng gốc và phương pháp nuôi dưỡng cân bằng lối sống.',
+    sessions: '8 buổi học',
+    format: 'Trực tuyến tương tác',
+    instructor: 'Trâm Phạm (Học viện Votive)',
+    highlights: [
+      'Năm nguyên tố cơ bản cấu thành vạn vật (Pancha Mahabhutas)',
+      'Thấu hiểu 3 Dosha cốt lõi: Vata, Pitta, Kapha',
+      'Nhận diện thể trạng gốc (Prakriti) và sự mất cân bằng (Vikriti)',
+      'Thực hành hơi thở Pranayama, chế độ dinh dưỡng và nhịp sinh học tự nhiên',
+    ],
   },
 ];
 
-function CourseModal({ course, onClose }: { course: typeof courses[0]; onClose: () => void }) {
+function CourseModal({
+  course,
+  onClose,
+}: {
+  course: Course;
+  onClose: () => void;
+}) {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -87,136 +111,138 @@ function CourseModal({ course, onClose }: { course: typeof courses[0]; onClose: 
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        course: course.title,
-        message: formData.message,
+        service: course.title,
+        message: formData.message || `Đăng ký khóa học: ${course.title}`,
       });
       setSubmitted(true);
     } catch {
-      alert('Không thể gửi. Vui lòng thử lại.');
+      alert('Không thể gửi đăng ký. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+      onClick={onClose}
+    >
       <div
-        className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-votive-border shadow-2xl animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white border-b border-stone-200 p-6 flex items-center justify-between">
+        <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-votive-border p-5 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">{course.icon}</span>
-            <h3 className="text-xl font-serif font-bold text-stone-800">{course.title}</h3>
+            <div className="w-10 h-10 rounded-xl bg-votive-surface border border-votive-border flex items-center justify-center">
+              {course.icon(24)}
+            </div>
+            <div>
+              <h3 className="text-base font-serif font-bold text-votive-text leading-snug">
+                Đăng Ký Tư Vấn Khóa Học
+              </h3>
+              <p className="text-xs text-votive-muted">{course.title}</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-stone-100 rounded-full transition-colors"
+            className="p-1.5 text-votive-muted hover:text-votive-red rounded-lg transition-colors"
           >
-            <svg className="w-6 h-6 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6">
           {submitted ? (
             <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+              <div className="w-14 h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200">
+                <Check className="w-7 h-7" />
               </div>
-              <h4 className="text-lg font-semibold text-stone-800 mb-2">Đăng ký thành công!</h4>
-              <p className="text-stone-600">Chúng tôi sẽ liên hệ với bạn trong 24 giờ để tư vấn chi tiết về khóa học.</p>
-              <button onClick={onClose} className="mt-4 text-gold-600 hover:text-gold-700 font-medium">
+              <h4 className="text-lg font-serif font-bold text-votive-text mb-2">
+                Đăng ký thành công!
+              </h4>
+              <p className="text-xs text-votive-muted mb-6 leading-relaxed">
+                Bộ phận học vụ của Votive Academy sẽ gửi đề cương chi tiết và liên hệ tư vấn lộ trình học phù hợp nhất cho bạn trong 24 giờ.
+              </p>
+              <button
+                onClick={onClose}
+                className="btn-primary text-sm px-6 py-2.5"
+              >
                 Đóng
               </button>
             </div>
           ) : (
-            <>
-              <div className="mb-6">
-                <p className="text-stone-600 mb-4">{course.description}</p>
-                <div className="flex flex-wrap gap-3 mb-4">
-                  <span className="px-3 py-1 bg-gold-100 text-gold-700 rounded-full text-sm">
-                    {course.sessions}
-                  </span>
-                  <span className="px-3 py-1 bg-stone-100 text-stone-600 rounded-full text-sm">
-                    {course.format}
-                  </span>
-                  {course.special && (
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                      Khai giảng định kỳ
-                    </span>
-                  )}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="p-3 bg-votive-surface/80 border border-votive-border rounded-xl text-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-votive-muted">Thời lượng:</span>
+                  <span className="font-semibold text-votive-text">{course.sessions}</span>
                 </div>
-                <p className="text-sm text-stone-500">{course.instructor}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-votive-muted">Hình thức:</span>
+                  <span className="font-semibold text-votive-text">{course.format}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-votive-muted">Giảng viên:</span>
+                  <span className="font-semibold text-votive-red">{course.instructor}</span>
+                </div>
               </div>
 
-              <div className="bg-stone-50 rounded-xl p-4 mb-6">
-                <h4 className="font-medium text-stone-800 mb-3">Nội dung khóa học</h4>
-                <ul className="space-y-2">
-                  {course.highlights.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm text-stone-600">
-                      <svg className="w-4 h-4 text-gold-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-votive-text">Họ và tên của bạn *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Nguyễn Văn A"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-votive-border bg-white text-sm outline-none focus:ring-2 focus:ring-votive-red/30 focus:border-votive-red"
+                />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <h4 className="font-medium text-stone-800">Đăng ký tư vấn</h4>
-                <div>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Họ và tên *"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="Số điện thoại *"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
-                  />
-                </div>
-                <div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-votive-text">Email nhận đề cương *</label>
                   <input
                     type="email"
                     required
-                    placeholder="Email *"
+                    placeholder="ban@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-votive-border bg-white text-sm outline-none focus:ring-2 focus:ring-votive-red/30 focus:border-votive-red"
                   />
                 </div>
-                <div>
-                  <textarea
-                    placeholder="Ghi chú (tùy chọn)"
-                    rows={2}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none resize-none"
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-votive-text">Số điện thoại / Zalo *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="0912 345 678"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-votive-border bg-white text-sm outline-none focus:ring-2 focus:ring-votive-red/30 focus:border-votive-red"
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="btn-primary w-full disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Đang gửi...' : 'Đăng ký tư vấn'}
-                </button>
-              </form>
-            </>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-votive-text">Mục tiêu học tập hoặc ghi chú</label>
+                <textarea
+                  placeholder="Ví dụ: Chưa từng học chiêm tinh, muốn học để tự xem lá số bản thân..."
+                  rows={3}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-votive-border bg-white text-sm outline-none focus:ring-2 focus:ring-votive-red/30 focus:border-votive-red resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary w-full py-3.5 text-sm shadow-md disabled:opacity-50"
+              >
+                {isSubmitting ? 'Đang gửi đăng ký...' : 'Gửi yêu cầu tư vấn & nhận đề cương'}
+              </button>
+            </form>
           )}
         </div>
       </div>
@@ -225,95 +251,120 @@ function CourseModal({ course, onClose }: { course: typeof courses[0]; onClose: 
 }
 
 export function Courses() {
-  const [selectedCourse, setSelectedCourse] = useState<typeof courses[0] | null>(null);
-  const { openChat } = useChat();
-
-  const handleCourseClick = (course: typeof courses[0]) => {
-    const message = `Xin chào! Tôi quan tâm đến khóa học "${course.title}" - ${course.sessions}. Bạn có thể tư vấn cho tôi được không?`;
-    openChat(message);
-  };
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
   return (
     <>
-      <section id="courses" className="section-padding bg-gradient-to-br from-stone-50 to-amber-50/30">
+      <section id="courses" className="section-padding bg-votive-surface/40 border-t border-votive-border/60 relative">
         <div className="container-width">
-          <div className="text-center mb-16">
-            <span className="text-gold-600 font-medium mb-2 block">Về khóa học</span>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-stone-800 mb-4">
-              Khoa học ánh sáng từ Vệ Đà
+          {/* Section Header */}
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="badge-parchment mb-3">
+              <BookOpen className="w-3.5 h-3.5 text-votive-red" />
+              Đào Tạo Học Thuật
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-votive-text mb-4 tracking-tight">
+              Chương Trình Đào Tạo Votive Academy
             </h2>
-            <p className="text-stone-600 max-w-2xl mx-auto">
-              Lộ trình đào tạo chiêm tinh học Vedic được giảng viên Trâm Phạm nghiên cứu và phát triển,
-              đã chứng minh hiệu quả trong suốt nhiều năm. Kiến thức từ lớp học hoàn toàn phù hợp với
-              người mới chưa biết gì về chiêm tinh, và cả người đã học rất nhiều nhưng chưa thể tự luận giải.
+            <p className="text-sm sm:text-base text-votive-muted leading-relaxed font-sans">
+              Hệ thống giáo trình chuẩn hóa từ các viện chiêm tinh uy tín tại Ấn Độ, truyền tải tri thức Jyotish, Ayurveda và Số học một cách khoa học, thực chứng và ứng dụng cao.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          {/* Courses Grid */}
+          <div className="grid md:grid-cols-2 gap-8">
             {courses.map((course) => (
               <div
                 key={course.id}
-                className="group bg-white rounded-2xl p-6 hover:shadow-xl transition-all duration-300 border border-stone-100 hover:border-gold-200"
+                className={`glass-card glass-card-hover rounded-2xl p-7 flex flex-col justify-between relative ${
+                  course.special ? 'border-votive-sand' : ''
+                }`}
               >
-                <div className="flex items-start gap-4 mb-4">
-                  <span className="text-4xl">{course.icon}</span>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-serif font-semibold text-stone-800 mb-1">
-                      {course.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="text-xs px-2 py-0.5 bg-gold-50 text-gold-600 rounded-full">
-                        {course.sessions}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 bg-stone-100 text-stone-500 rounded-full">
-                        {course.format}
-                      </span>
+                <div>
+                  {/* Top Meta Header */}
+                  <div className="flex items-start justify-between gap-4 mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-13 h-13 rounded-2xl bg-votive-surface border border-votive-border flex items-center justify-center p-3 shadow-sm">
+                        {course.icon(30)}
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-votive-red">
+                          {course.format}
+                        </span>
+                        <div className="flex items-center gap-1.5 text-xs text-votive-muted mt-0.5">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{course.sessions}</span>
+                        </div>
+                      </div>
                     </div>
+
+                    {course.special && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-votive-red/10 text-votive-red border border-votive-red/20">
+                        <Sparkles className="w-3 h-3" />
+                        Chuyên sâu
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Course Title & Summary */}
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-votive-text mb-3 leading-snug">
+                    {course.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-votive-muted leading-relaxed mb-6">
+                    {course.description}
+                  </p>
+
+                  {/* Instructor Badge */}
+                  <div className="mb-6 p-3 rounded-xl bg-votive-surface/70 border border-votive-border/70 flex items-center gap-2.5 text-xs text-votive-text">
+                    <Award className="w-4 h-4 text-votive-red shrink-0" />
+                    <span>
+                      Giảng dạy: <strong>{course.instructor}</strong>
+                    </span>
+                  </div>
+
+                  {/* Highlights Syllabus List */}
+                  <div className="pt-5 border-t border-votive-border/60 mb-6">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-votive-text mb-3">
+                      Nội dung trọng tâm:
+                    </h4>
+                    <ul className="space-y-2.5">
+                      {course.highlights.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-votive-text/80 leading-snug">
+                          <Check className="w-4 h-4 text-votive-red shrink-0 mt-0.5" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
 
-                <p className="text-stone-600 text-sm mb-4 line-clamp-3">
-                  {course.description}
-                </p>
-
-                <ul className="space-y-1.5 mb-4">
-                  {course.highlights.slice(0, 3).map((item, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-sm text-stone-500">
-                      <svg className="w-3.5 h-3.5 text-gold-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="line-clamp-1">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <p className="text-xs text-stone-400 mb-4">{course.instructor}</p>
-
+                {/* Enrollment Button */}
                 <button
-                  onClick={() => handleCourseClick(course)}
-                  className="w-full py-2.5 px-4 bg-stone-100 hover:bg-gold-50 text-stone-700 hover:text-gold-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  onClick={() => setSelectedCourse(course)}
+                  className="btn-secondary w-full py-3 text-sm font-medium hover:bg-votive-red hover:text-white hover:border-votive-red flex items-center justify-center gap-2 group transition-all"
                 >
-                  🪐 Tư vấn ngay
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
+                  <span>Đăng ký nhận đề cương chi tiết</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             ))}
           </div>
 
+          {/* Academic Lineage Note */}
           <div className="mt-12 text-center">
-            <div className="inline-block bg-white rounded-2xl p-6 shadow-lg border border-stone-100">
-              <p className="text-stone-600 mb-2">Giảng viên: <strong className="text-stone-800">Trâm Phạm</strong></p>
-              <p className="text-sm text-stone-500">Chứng chỉ Gurukul học viện top 3 Ấn Độ</p>
-              <p className="text-xs text-stone-400 mt-2">Học phí bao gồm video record và tài liệu được Votive biên soạn</p>
-            </div>
+            <p className="text-xs text-votive-muted max-w-xl mx-auto italic">
+              * Tất cả học viên tốt nghiệp các cấp độ Chiêm Tinh Vệ Đà sẽ được cấp chứng nhận hoàn thành khóa học từ Votive Academy và hỗ trợ tham gia cộng đồng nghiên cứu Jyotish liên tục.
+            </p>
           </div>
         </div>
       </section>
 
+      {/* Course Enrollment Modal */}
       {selectedCourse && (
-        <CourseModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />
+        <CourseModal
+          course={selectedCourse}
+          onClose={() => setSelectedCourse(null)}
+        />
       )}
     </>
   );

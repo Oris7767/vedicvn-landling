@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { SEO } from './components/SEO';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { Courses } from './components/Courses';
+import { TrustStrip } from './components/TrustStrip';
 import { Services } from './components/Services';
+import { Courses } from './components/Courses';
 import { About } from './components/About';
 import { Contact } from './components/Contact';
 import { DividerIcons } from './components/DividerIcons';
@@ -28,8 +29,8 @@ export default function App() {
     return (
       <>
         <SEO
-          title="Bộ Quy Tắc Đạo Đức Nghề Nghiệp - Votive Academy"
-          description="Bộ quy tắc đạo đức nghề nghiệp của Votive Academy - Chiêm tinh học Vệ Đà với tinh thần trung thực, trách nhiệm và tôn trọng tự do ý chí."
+          title="Bộ Quy Tắc Đạo Đức Nghề Nghiệp | VedicVN Academy"
+          description="Bộ quy tắc đạo đức nghề nghiệp của Votive Academy thuộc hệ sinh thái VedicVN — Chiêm tinh học Vệ Đà với tinh thần trung thực, trách nhiệm và tôn trọng tự do ý chí."
         />
         <EthicsPage onBack={handleBack} />
       </>
@@ -40,8 +41,8 @@ export default function App() {
     return (
       <>
         <SEO
-          title="Chính Sách và Điều Khoản Dịch Vụ - Votive Academy"
-          description="Chính sách và điều khoản dịch vụ của Votive Academy. Vui lòng đọc kỹ trước khi sử dụng dịch vụ."
+          title="Chính Sách & Điều Khoản Dịch Vụ | VedicVN Academy"
+          description="Chính sách và điều khoản dịch vụ của Votive Academy thuộc hệ sinh thái VedicVN. Vui lòng đọc kỹ trước khi sử dụng dịch vụ tư vấn và tham gia khóa học."
         />
         <TermsPage onBack={handleBack} />
       </>
@@ -51,15 +52,16 @@ export default function App() {
   return (
     <>
       <SEO
-        title="Votive Academy - Luận Giải Chiêm Tinh Vệ Đà & Khóa Học Chiêm Tinh"
-        description="Dịch vụ luận giải Chiêm Tinh Vệ Đà (Vedic Astrology) chuyên nghiệp. Chiêm tinh cơ bản, chuyên sâu, Prasna. Khóa học chiêm tinh học online từ cơ bản đến nâng cao."
+        title="VedicVN Academy & Tư Vấn Chiêm Tinh Vệ Đà (Jyotish) | Hệ sinh thái VedicVN"
+        description="Dịch vụ luận giải Chiêm Tinh Vệ Đà (Jyotish) chuẩn học thuật, tư vấn Prasna thời khắc và hệ thống đào tạo chiêm tinh Vệ Đà từ cơ bản đến chuyên sâu từ Votive Academy."
       />
-      <div className="min-h-screen">
-        <Header />
-        <main>
+      <div className="min-h-screen flex flex-col bg-votive-bg text-votive-text selection:bg-votive-red selection:text-white">
+        <Header onNavigate={setCurrentPage} />
+        <main className="flex-1">
           <Hero onNavigate={setCurrentPage} />
-          <Courses />
+          <TrustStrip />
           <Services />
+          <Courses />
           <About />
           <Contact />
           <DividerIcons />

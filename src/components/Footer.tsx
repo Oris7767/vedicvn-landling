@@ -176,6 +176,16 @@ export function Footer({ onNavigate }: FooterProps) {
 
           <div className="flex items-center gap-3">
             <a
+              href="https://zalo.me/0385448747"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-8 px-3 rounded-full bg-stone-900 border border-stone-800 flex items-center gap-1.5 hover:bg-[#0068FF] hover:border-[#0068FF] hover:text-white transition-colors text-stone-300 font-medium"
+              title="Hotline / Zalo: 0385 448 747"
+            >
+              <span className="text-[11px] font-bold text-[#0068FF] group-hover:text-white">Zalo</span>
+              <span className="text-[11px]">0385 448 747</span>
+            </a>
+            <a
               href="https://x.com/VotiveAstrology"
               target="_blank"
               rel="noopener noreferrer"

@@ -433,7 +433,22 @@ export function Contact() {
                   </div>
                   <div>
                     <div className="text-xs text-votive-muted">Hotline / Zalo tư vấn</div>
-                    <div className="font-medium">+84 (0) 868 888 688</div>
+                    <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                      <a
+                        href="tel:0385448747"
+                        className="font-medium hover:text-votive-red transition-colors"
+                      >
+                        0385 448 747
+                      </a>
+                      <a
+                        href="https://zalo.me/0385448747"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 transition-colors"
+                      >
+                        Chat Zalo
+                      </a>
+                    </div>
                   </div>
                 </div>
 

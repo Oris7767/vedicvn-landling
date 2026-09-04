@@ -179,7 +179,7 @@ export function ChatWidget() {
         id: `error-${Date.now()}`,
         role: 'assistant',
         content:
-          'Hiện hệ thống trợ lý đang bận hoặc bạn có thể liên hệ trực tiếp qua Hotline/Zalo: 0868 888 688 để được hỗ trợ tức thì.',
+          'Hiện hệ thống trợ lý đang bận hoặc bạn có thể liên hệ trực tiếp qua Hotline/Zalo: 0385 448 747 để được hỗ trợ tức thì.',
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -375,7 +375,17 @@ export function ChatWidget() {
             </div>
             <div className="mt-1.5 flex items-center justify-between text-[10px] text-votive-muted px-1">
               <span>Bảo mật 100% theo chuẩn VedicVN</span>
-              <span>Hotline: 0868 888 688</span>
+              <div className="flex items-center gap-1">
+                <span>Hotline/Zalo:</span>
+                <a
+                  href="https://zalo.me/0385448747"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-votive-red hover:underline"
+                >
+                  0385 448 747
+                </a>
+              </div>
             </div>
           </div>
         </div>

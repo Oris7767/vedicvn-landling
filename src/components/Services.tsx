@@ -640,7 +640,7 @@ function ServiceModal({
                 Hồ sơ đã được gửi thành công!
               </h4>
               <p className="text-sm text-votive-muted mb-6 leading-relaxed max-w-sm mx-auto">
-                Chuyên viên tư vấn của Votive Academy sẽ chủ động liên hệ với bạn trong vòng 24 giờ qua Zalo/Email để xác nhận thời gian chi tiết.
+                Chuyên viên tư vấn của Votive Academy sẽ chủ động liên hệ với bạn trong vòng 24 giờ qua Zalo/Email để xác nhận thời gian chi tiết (Hotline/Zalo hỗ trợ: <a href="https://zalo.me/0385448747" target="_blank" rel="noopener noreferrer" className="font-semibold text-votive-red hover:underline">0385 448 747</a>).
               </p>
               <button
                 onClick={onClose}

@@ -161,7 +161,7 @@ function CourseModal({
                 Đăng ký thành công!
               </h4>
               <p className="text-xs text-votive-muted mb-6 leading-relaxed">
-                Bộ phận học vụ của Votive Academy sẽ gửi đề cương chi tiết và liên hệ tư vấn lộ trình học phù hợp nhất cho bạn trong 24 giờ.
+                Bộ phận học vụ của Votive Academy sẽ gửi đề cương chi tiết và liên hệ tư vấn lộ trình học phù hợp nhất cho bạn trong 24 giờ (Hotline/Zalo: <a href="https://zalo.me/0385448747" target="_blank" rel="noopener noreferrer" className="font-semibold text-votive-red hover:underline">0385 448 747</a>).
               </p>
               <button
                 onClick={onClose}

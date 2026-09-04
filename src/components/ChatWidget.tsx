@@ -140,30 +140,36 @@ export function ChatWidget() {
     setIsTyping(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/chat`, {
+      const baseApi = API_URL.replace(/\/+$/, '');
+      const endpoint = baseApi.endsWith('/chat') ? baseApi : `${baseApi.replace(/\/api$/, '')}/chat`;
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: messageText,
+          session_id: sessionId,
           sessionId: sessionId,
-          context: 'landing_page',
+          source: 'landing_page',
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error(`Server returned ${response.status}`);
       }
 
       const data = await response.json();
 
-      if (data.sessionId && !sessionId) {
-        setSessionId(data.sessionId);
+      const newSessionId = data.session_id || data.sessionId;
+      if (newSessionId && !sessionId) {
+        setSessionId(newSessionId);
       }
 
-      if (data.payment) {
-        setPaymentInfo(data.payment);
+      const payment = data.payment_info || data.payment;
+      if (payment) {
+        setPaymentInfo(payment);
       }
 
       const assistantMessage: Message = {
@@ -174,7 +180,8 @@ export function ChatWidget() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch {
+    } catch (err) {
+      console.error('ChatWidget error:', err);
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: 'assistant',
